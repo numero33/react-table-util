@@ -1,0 +1,72 @@
+{
+    "name": "react-table-util",
+    "version": "0.0.1",
+    "author": "Patrick Malleier <github@numero33.com>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/numero33/react-table-util/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/numero33/react-table-util.git"
+    },
+    "engines": {
+        "node": ">8.0.0"
+    },
+    "keywords": [
+        "react",
+        "reactjs",
+        "react-table",
+        "list",
+        "table",
+        "datagrid"
+    ],
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.esm.js",
+    "jsnext:main": "build/index.es.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "sideEffects": false,
+    "scripts": {
+        "build": "run-s clean bundle",
+        "bundle": "rollup -c",
+        "bundle:watch": "rollup -cw",
+        "start": "run-s clean bundle:watch",
+        "clean": "run-p clean:*",
+        "clean:dist": "rm -rf dist",
+        "lint": "eslint src/",
+        "prepare": "run-s build"
+    },
+    "peerDependencies": {
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^15.1.0",
+        "@rollup/plugin-node-resolve": "^9.0.0",
+        "@rollup/plugin-typescript": "^6.0.0",
+        "@types/react": "^16.9.53",
+        "@typescript-eslint/eslint-plugin": "^4.5.0",
+        "@typescript-eslint/parser": "^4.5.0",
+        "eslint": "^7.11.0",
+        "eslint-config-prettier": "^6.14.0",
+        "eslint-plugin-prettier": "^3.1.4",
+        "eslint-plugin-react": "^7.21.5",
+        "eslint-plugin-react-hooks": "^4.2.0",
+        "npm-run-all": "^4.1.5",
+        "prettier": "^2.1.2",
+        "react": "^17.0.0",
+        "rollup": "^2.32.1",
+        "rollup-plugin-commonjs": "^10.1.0",
+        "rollup-plugin-node-resolve": "^5.2.0",
+        "rollup-plugin-typescript2": "^0.28.0",
+        "tslib": "^2.0.3",
+        "typescript": "^4.0.3",
+        "@types/flat": "^5.0.1"
+    },
+    "dependencies": {
+        "flat": "^5.0.2"
+    }
+}
