@@ -27,14 +27,14 @@ interface useSortReturn {
 
 export function useSort(props: useSortProps): useSortReturn {
     const {data, initalSorting} = props
-    const flatArray = useMemo(() => data.flatMap(x => flat(x)), [data])
+
+    const flatArray: Array<unknown> = useMemo(() => data.flatMap(x => flat(x)), [data])
 
     const [sortedBy, setSortedBy] = useState<sortedBy | null>(initalSorting || null)
 
     const onSortBy = (key: string, direction: sortDirection): void => {
         setSortedBy(x => ({[key]: {direction: direction || toggleSortDirection((x || {})[key])}}))
     }
-
     const sortedArray = useMemo(() => {
         let sortedFlatArray: Array<unknown> = flatArray
         if (sortedBy !== null) {
