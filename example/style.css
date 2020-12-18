@@ -1,0 +1,12 @@
+.row {
+    display: flex;
+    border-bottom: 1px solid #e6e6e6;
+    padding: 0.5rem 0;
+}
+.row > div {
+    padding: 0 0.5rem;
+    flex: 1 0 1rem;
+}
+.row.header {
+    font-weight: bold;
+}
