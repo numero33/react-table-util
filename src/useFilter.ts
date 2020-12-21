@@ -12,8 +12,9 @@ interface useFilterReturn {
 }
 
 const reBrace = /\(((?!(\(|\))).)*\)/gim
-const reCondition = /\s*(\S+)\s+(\S+)\s+(\S+)\s*|\s*sq(\d+)\s*/
+const reCondition = /^\s*(\S+)\s+(\S+)\s+(\'.*\'|\S+)\s*|\s*sq(\d+)\s*$/
 const reReplaceBrace = /^\s*\(+\s*|\s*\)+\s*$/g
+const reReplaceApostrophe = /^\s*\'*|\'*\s*$/g
 const reSplit = /(and|or)/gim
 
 export function useFilter(props: useFilterProps): useFilterReturn {
@@ -36,7 +37,7 @@ export function useFilter(props: useFilterProps): useFilterReturn {
                 for (const c of m.split(reSplit)) {
                     const s = reCondition.exec(c)
                     if (s !== null) {
-                        if (s[1] !== undefined) group.addCompare(s[1], s[2], s[3])
+                        if (s[1] !== undefined) group.addCompare(s[1], s[2], s[3].replace(reReplaceApostrophe, ''))
                         else if (s[4] !== undefined) group.addGroup(subQuerys[Number(s[4])])
                     }
                 }

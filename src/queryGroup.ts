@@ -42,8 +42,14 @@ export class QueryGroup {
 
     compare(c: Comparer, row: any): boolean {
         switch (c.operator) {
-            case '==':
+            case '===':
                 return row[c.left] == c.right
+            case '!==':
+                return row[c.left] != c.right
+            case '==':
+                return c.right.test(row[c.left])
+            case '!=':
+                return !c.right.test(row[c.left])
             case '>':
                 return row[c.left] > c.right
             case '>=':
@@ -57,6 +63,7 @@ export class QueryGroup {
     }
 
     addCompare(left: string, operator: string, right: any): QueryGroup {
+        if ((operator.match(/=/g) || []).length === 2) right = new RegExp('^' + right + '$')
         this.parts.push({left, operator, right})
         return this
     }
