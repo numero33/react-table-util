@@ -21,12 +21,14 @@ export function useFilter(props: useFilterProps): useFilterReturn {
     const {data, query} = props
 
     const queryFilter: QueryGroup | null = useMemo(() => {
-        if (query.length === 0) return null
+        const trimQuery = query.trim()
+        if (trimQuery.length === 0) return null
 
         const subQuerys: Array<QueryGroup> = []
-        let newQuery: string = '(' + query + ')'
-        while (newQuery.includes('(')) {
+        let newQuery: string = '(' + trimQuery + ')'
+        subQueryLoop: while (newQuery.includes('(')) {
             const matches = newQuery.matchAll(reBrace)
+
             for (const match of matches) {
                 const m = match[0].replace(reReplaceBrace, '')
 
@@ -43,7 +45,7 @@ export function useFilter(props: useFilterProps): useFilterReturn {
                 }
 
                 newQuery = newQuery.replace(match[0], 'sq' + subQuerys.length)
-                subQuerys.push(group)
+                if (group.parts.length > 0) subQuerys.push(group)
             }
         }
         if (subQuerys.length === 0) return null
@@ -53,7 +55,7 @@ export function useFilter(props: useFilterProps): useFilterReturn {
     const flatArray: Array<unknown> = useMemo(() => data.flatMap(x => flat(x)), [data])
 
     const newData: Array<unknown> | undefined = useMemo(() => {
-        if (queryFilter !== null) return (flatArray || []).filter(x => queryFilter.filter(x)).flatMap(x => unflatten(x))
+        if (queryFilter !== null) return flatArray.filter(x => queryFilter.filter(x)).flatMap(x => unflatten(x))
         return undefined
     }, [flatArray, queryFilter])
 

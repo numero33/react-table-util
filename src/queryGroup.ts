@@ -26,11 +26,8 @@ export class QueryGroup {
             if (part !== undefined) {
                 let result: boolean
 
-                if (part instanceof QueryGroup) {
-                    result = part.filter(row)
-                } else {
-                    result = this.compare(part, row)
-                }
+                if (part instanceof QueryGroup) result = part.filter(row)
+                else result = this.compare(part, row)
 
                 if (!result && this.filterConjunctive === filterConjunctive.and) return false
                 if (result && this.filterConjunctive === filterConjunctive.or) return true
@@ -63,7 +60,7 @@ export class QueryGroup {
     }
 
     addCompare(left: string, operator: string, right: any): QueryGroup {
-        if ((operator.match(/=/g) || []).length === 2) right = new RegExp('^' + right + '$')
+        if (['==', '!='].includes(operator)) right = new RegExp('^' + right + '$')
         this.parts.push({left, operator, right})
         return this
     }
