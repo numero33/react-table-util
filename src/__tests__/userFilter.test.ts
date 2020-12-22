@@ -2,7 +2,7 @@ import {renderHook} from '@testing-library/react-hooks'
 
 import {useFilter} from '../index'
 
-import dataList from './dataList.json'
+import dataList from '../../example/dataList.json'
 
 test('empty data/query', () => {
     const {result} = renderHook(() =>

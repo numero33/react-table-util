@@ -1,14 +1,15 @@
 import React, {useState, useEffect} from 'react'
 import ReactDOM from 'react-dom'
-import makeData from './makeData'
 
 import {useFilter, useSort, isSortedBy} from '../dist/index.cjs.js'
 
-const list = makeData(1000)
+import list from './dataList.json'
 
 function Example() {
     const [query, setQuery] = useState('')
     const [queryParts, setQueryParts] = useState({})
+
+    console.debug(JSON.stringify(list))
 
     useEffect(() => {
         setQuery(
