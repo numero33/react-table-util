@@ -60,7 +60,17 @@ export class QueryGroup {
     }
 
     addCompare(left: string, operator: string, right: any): QueryGroup {
-        if (['==', '!='].includes(operator)) right = new RegExp('^' + right + '$')
+        if (['==', '!='].includes(operator)) {
+            if (right[0] == '/') {
+                const i = right.lastIndexOf('/')
+                if (i > 0) {
+                    try {
+                        right = new RegExp(right.slice(1, i), right.slice(i + 1))
+                    } catch {}
+                }
+            }
+            if (!(right instanceof RegExp)) right = new RegExp(right, 'i')
+        }
         this.parts.push({left, operator, right})
         return this
     }
