@@ -26,14 +26,15 @@ export function useFilter(props: useFilterProps): useFilterReturn {
 
         const subQuerys: Array<QueryGroup> = []
         let newQuery: string = '(' + trimQuery + ')'
-        subQueryLoop: while (newQuery.includes('(')) {
+        while (newQuery.includes('(')) {
             const matches = newQuery.matchAll(reBrace)
+            console.debug(matches, newQuery)
 
             for (const match of matches) {
                 const m = match[0].replace(reReplaceBrace, '')
 
                 // if (m.includes('and') && m.includes('or')) return {data: [], error: Error('mixed and/or')}
-                if (m.includes('and') && m.includes('or')) return null
+                if (/\s+and\s+/gim.test(m) && /\s+or\s+/gim.test(m)) return null
 
                 const group = new QueryGroup(m.includes('and') ? filterConjunctive.and : filterConjunctive.or)
                 for (const c of m.split(reSplit)) {
@@ -48,6 +49,7 @@ export function useFilter(props: useFilterProps): useFilterReturn {
                 if (group.parts.length > 0) subQuerys.push(group)
             }
         }
+
         if (subQuerys.length === 0) return null
         return subQuerys[subQuerys.length - 1]
     }, [query])
