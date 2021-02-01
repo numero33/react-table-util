@@ -15,7 +15,7 @@ const reBrace = /\(((?!(\(|\))).)*\)/gim
 const reCondition = /^\s*(\S+)\s+(\S+)\s+(\'.*\'|\S+)\s*|\s*sq(\d+)\s*$/
 const reReplaceBrace = /^\s*\(+\s*|\s*\)+\s*$/g
 const reReplaceApostrophe = /^\s*\'*|\'*\s*$/g
-const reSplit = /(and|or)/gim
+const reSplit = /\s+(and|or)\s+/gim
 
 export function useFilter(props: useFilterProps): useFilterReturn {
     const {data, query} = props
