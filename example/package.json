@@ -13,12 +13,12 @@
         "react-table-util": "../dist/"
     },
     "devDependencies": {
-        "parcel": "^1.12.3"
+        "parcel": "^2.0.0-beta.2"
     },
     "dependencies": {
         "namor": "^2.0.2",
-        "react": "^16.13.1",
-        "react-dom": "^16.13.1",
-        "react-table-util": "^0.0.2"
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-table-util": "^0.0.9"
     }
 }
