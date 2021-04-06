@@ -9,8 +9,6 @@ function Example() {
     const [query, setQuery] = useState('')
     const [queryParts, setQueryParts] = useState({})
 
-    console.debug(JSON.stringify(list))
-
     useEffect(() => {
         setQuery(
             Object.keys(queryParts)
@@ -20,8 +18,12 @@ function Example() {
         )
     }, [queryParts])
 
-    const {data: filterdList} = useFilter({data: list, query})
-    const {data: sortedList, onSortBy, sortedBy} = useSort({data: filterdList})
+    const columnFormatter = {
+        'person.firstName': x => String(x).split('').reverse().join(''),
+    }
+
+    const {data: filterdList} = useFilter({data: list, query, columnFormatter})
+    const {data: sortedList, onSortBy, sortedBy} = useSort({data: filterdList, columnFormatter})
 
     return (
         <div>
@@ -38,26 +40,26 @@ function Example() {
             {sortedList.length}
             <div className="row header">
                 <div>
-                    <span onClick={() => onSortBy('firstName')}>firstName {isSortedBy(sortedBy, 'firstName') > 0 ? (isSortedBy(sortedBy, 'firstName') === 1 ? `Up` : `Down`) : `Sort`}</span>
+                    <span onClick={() => onSortBy('person.firstName')}>firstName {isSortedBy(sortedBy, 'person.firstName') > 0 ? (isSortedBy(sortedBy, 'person.firstName') === 1 ? `Up` : `Down`) : `Sort`}</span>
                     <input
                         type="text"
                         style={{width: '100%'}}
-                        value={queryParts['firstName']}
+                        value={queryParts['person.firstName']}
                         onChange={e => {
                             const v = e.target.value
-                            setQueryParts(x => ({...x, firstName: v}))
+                            setQueryParts(x => ({...x, 'person.firstName': v}))
                         }}
                     />
                 </div>
                 <div>
-                    <span onClick={() => onSortBy('lastName')}>lastName {isSortedBy(sortedBy, 'lastName') > 0 ? (isSortedBy(sortedBy, 'lastName') === 1 ? `Up` : `Down`) : `Sort`}</span>
+                    <span onClick={() => onSortBy('person.lastName')}>lastName {isSortedBy(sortedBy, 'person.lastName') > 0 ? (isSortedBy(sortedBy, 'person.lastName') === 1 ? `Up` : `Down`) : `Sort`}</span>
                     <input
                         type="text"
                         style={{width: '100%'}}
-                        value={queryParts['lastName']}
+                        value={queryParts['person.lastName']}
                         onChange={e => {
                             const v = e.target.value
-                            setQueryParts(x => ({...x, lastName: v}))
+                            setQueryParts(x => ({...x, 'person.lastName': v}))
                         }}
                     />
                 </div>
@@ -112,8 +114,8 @@ function Example() {
             </div>
             {sortedList.map((x, i) => (
                 <div key={i} className="row">
-                    <div>{x.firstName}</div>
-                    <div>{x.lastName}</div>
+                    <div>{x.person.firstName}</div>
+                    <div>{x.person.lastName}</div>
                     <div>{x.age}</div>
                     <div>{x.visits}</div>
                     <div>{x.progress}</div>

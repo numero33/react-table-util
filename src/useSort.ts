@@ -1,9 +1,12 @@
-import {useState, useMemo} from 'react'
+import {useState, useMemo, useCallback} from 'react'
 import flat, {unflatten} from 'flat'
 
+type dataArrayRow = {[columnName: string]: unknown}
+type dataArray = Array<dataArrayRow>
 interface useSortProps {
     data: Array<unknown>
     initalSorting?: sortedBy
+    columnFormatter?: {[columnName: string]: (value: unknown) => void}
 }
 
 export enum sortDirection {
@@ -26,11 +29,29 @@ interface useSortReturn {
 }
 
 export function useSort(props: useSortProps): useSortReturn {
-    const {data, initalSorting} = props
+    const {data, initalSorting, columnFormatter} = props
 
     const [sortedBy, setSortedBy] = useState<sortedBy | undefined>(initalSorting)
 
-    const flatArray: Array<unknown> = useMemo(() => data.flatMap(x => flat(x)), [data])
+    const flatArray: dataArray = useMemo(() => data.flatMap(x => flat(x)), [data])
+
+    const neededColumnFormatters: {[columnName: string]: (value: unknown) => void} = useMemo(() => {
+        if (columnFormatter === undefined || sortedBy === undefined) return {}
+        const c = Object.keys(columnFormatter).filter(x => Object.keys(sortedBy).includes(x))
+        if (c.length === 0) return {}
+        return c.reduce((sum, val) => ({...sum, [val]: columnFormatter[val]}), {})
+    }, [columnFormatter, sortedBy])
+
+    const formatRow = useCallback(
+        row => {
+            const keys = Object.keys(neededColumnFormatters)
+            if (keys.length === 0) return row
+            const tmp = {...row}
+            for (const c of keys) tmp[c] = neededColumnFormatters[c](row[c])
+            return tmp
+        },
+        [neededColumnFormatters],
+    )
 
     const onSortBy = (key: string, direction?: sortDirection): void => {
         if (direction === sortDirection.none) setSortedBy(undefined)
@@ -38,10 +59,11 @@ export function useSort(props: useSortProps): useSortReturn {
     }
 
     const sortedArray = useMemo(() => {
-        let sortedFlatArray: Array<unknown> = flatArray
+        let sortedFlatArray: dataArray = flatArray
         if (sortedBy !== undefined) {
             sortedFlatArray = Object.keys(sortedBy).flatMap(k =>
                 sortedFlatArray.sort((a: any, b: any): number => {
+                    ;[a, b] = [formatRow(a), formatRow(b)]
                     if (sortedBy[k].direction > 1) [a, b] = [b, a]
                     return defaultCompare(a[k] || '', b[k] || '')
                 }),
@@ -49,7 +71,7 @@ export function useSort(props: useSortProps): useSortReturn {
             return sortedFlatArray.flatMap(x => unflatten(x))
         }
         return undefined
-    }, [flatArray, sortedBy])
+    }, [flatArray, sortedBy, formatRow])
 
     return {
         data: sortedArray || data,

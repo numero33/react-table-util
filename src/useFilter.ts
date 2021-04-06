@@ -1,10 +1,11 @@
-import {useMemo} from 'react'
+import {useCallback, useMemo} from 'react'
 import {QueryGroup, filterConjunctive} from './queryGroup'
 import flat, {unflatten} from 'flat'
 
 interface useFilterProps {
     data: Array<unknown>
     query: string
+    columnFormatter?: {[columnName: string]: (value: unknown) => void}
 }
 
 interface useFilterReturn {
@@ -18,7 +19,19 @@ const reReplaceApostrophe = /^\s*\'*|\'*\s*$/g
 const reSplit = /\s+(and|or)\s+/gim
 
 export function useFilter(props: useFilterProps): useFilterReturn {
-    const {data, query} = props
+    const {data, query, columnFormatter} = props
+
+    const formatRow = useCallback(
+        row => {
+            if (columnFormatter === undefined) return row
+            const keys = Object.keys(columnFormatter)
+            if (keys.length === 0) return row
+            const tmp = {...row}
+            for (const c of keys) if (c in tmp) tmp[c] = columnFormatter[c](row[c])
+            return tmp
+        },
+        [columnFormatter],
+    )
 
     const queryFilter: QueryGroup | null = useMemo(() => {
         const trimQuery = query.trim()
@@ -28,7 +41,6 @@ export function useFilter(props: useFilterProps): useFilterReturn {
         let newQuery: string = '(' + trimQuery + ')'
         while (newQuery.includes('(')) {
             const matches = newQuery.matchAll(reBrace)
-            console.debug(matches, newQuery)
 
             for (const match of matches) {
                 const m = match[0].replace(reReplaceBrace, '')
@@ -57,9 +69,9 @@ export function useFilter(props: useFilterProps): useFilterReturn {
     const flatArray: Array<unknown> = useMemo(() => data.flatMap(x => flat(x)), [data])
 
     const newData: Array<unknown> | undefined = useMemo(() => {
-        if (queryFilter !== null) return flatArray.filter(x => queryFilter.filter(x)).flatMap(x => unflatten(x))
+        if (queryFilter !== null) return flatArray.filter(x => queryFilter.filter(formatRow(x))).flatMap(x => unflatten(x))
         return undefined
-    }, [flatArray, queryFilter])
+    }, [flatArray, queryFilter, formatRow])
 
     return {
         data: newData || data,

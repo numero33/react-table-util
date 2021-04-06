@@ -4,11 +4,12 @@ import {useFilter} from '../index'
 
 import dataList from '../../example/dataList.json'
 
-test('empty data/query', () => {
+test('empty data/query/columnFormatter', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: [],
             query: '',
+            columnFormatter: {},
         }),
     )
     expect(result.current.data.length).toBe(0)
@@ -69,6 +70,7 @@ test('simple equal number', () => {
         useFilter({
             data: dataList,
             query: 'progress === 38',
+            columnFormatter: {},
         }),
     )
     expect(result.current.data.length).toBe(16)
@@ -78,7 +80,7 @@ test('simple equal string', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: "firstName === 'night 41ruc'",
+            query: "person.firstName === 'night 41ruc'",
         }),
     )
 
@@ -159,7 +161,7 @@ test('regex equal string, firstName starts with a', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: 'firstName == /^a.*$/',
+            query: 'person.firstName == /^a.*$/',
         }),
     )
     expect(result.current.data.length).toBe(58)
@@ -169,7 +171,7 @@ test('regex equal string, firstName contains a case insensitive', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: 'firstName == a',
+            query: 'person.firstName == a',
         }),
     )
     expect(result.current.data.length).toBe(528)
@@ -179,7 +181,7 @@ test('regex equal string, firstName contains a case sensitive', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: 'firstName == /a/',
+            query: 'person.firstName == /a/',
         }),
     )
     expect(result.current.data.length).toBe(527)
@@ -199,7 +201,7 @@ test('regex not equal string, firstName starts with a', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: 'firstName != /^a.*$/',
+            query: 'person.firstName != /^a.*$/',
         }),
     )
     expect(result.current.data.length).toBe(942)
@@ -209,7 +211,7 @@ test('simple and, firstName start with a and lastName starts with c', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: 'firstName == /^a.*$/ and lastName == /^c.*$/',
+            query: 'person.firstName == /^a.*$/ and person.lastName == /^c.*$/',
         }),
     )
     expect(result.current.data.length).toBe(11)
@@ -219,7 +221,7 @@ test('simple or, firstName start with a or lastName starts with c', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: 'firstName == /^a.*$/ or lastName == /^c.*$/',
+            query: 'person.firstName == /^a.*$/ or person.lastName == /^c.*$/',
         }),
     )
     expect(result.current.data.length).toBe(174)
@@ -229,7 +231,7 @@ test('group and/or, firstName start with a and lastName starts with c or progres
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: '(firstName == /^a.*$/ and lastName == /^c.*$/) or progress != /^3\\d*$/',
+            query: '(person.firstName == /^a.*$/ and person.lastName == /^c.*$/) or progress != /^3\\d*$/',
         }),
     )
     expect(result.current.data.length).toBe(894)
@@ -239,7 +241,7 @@ test('group and/or, firstName start with a or lastName starts with c and progres
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: 'progress != /^3\\d*$/ and (firstName == /^a.*$/ or lastName == /^c.*$/)',
+            query: 'progress != /^3\\d*$/ and (person.firstName == /^a.*$/ or person.lastName == /^c.*$/)',
         }),
     )
     expect(result.current.data.length).toBe(155)
@@ -249,8 +251,22 @@ test('group and/or, (firstName start with a and lastName starts with c or progre
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: '((firstName == /^a.*$/ and lastName == /^c.*$/) or (progress != /^3\\d*$/)) and age > 10',
+            query: '((person.firstName == /^a.*$/ and person.lastName == /^c.*$/) or (progress != /^3\\d*$/)) and age > 10',
         }),
     )
     expect(result.current.data.length).toBe(547)
+})
+
+test('simple equal string, columnFormatter', () => {
+    const {result} = renderHook(() =>
+        useFilter({
+            data: dataList,
+            query: `person.firstName === '${String('night 41ruc').split('').reverse().join('')}'`,
+            columnFormatter: {
+                'person.firstName': x => String(x).split('').reverse().join(''),
+            },
+        }),
+    )
+
+    expect(result.current.data.length).toBe(1)
 })
