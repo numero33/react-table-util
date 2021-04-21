@@ -1,8 +1,8 @@
 import {renderHook} from '@testing-library/react-hooks'
 
-import {useFilter} from '../index'
+import {useFilter} from '../.'
 
-import dataList from '../../example/dataList.json'
+const dataList = require('../example/dataList.json')
 
 test('empty data/query/columnFormatter', () => {
     const {result} = renderHook(() =>

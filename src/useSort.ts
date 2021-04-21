@@ -3,8 +3,8 @@ import flat, {unflatten} from 'flat'
 
 type dataArrayRow = {[columnName: string]: unknown}
 type dataArray = Array<dataArrayRow>
-interface useSortProps {
-    data: Array<unknown>
+interface useSortProps<T> {
+    data: Array<T>
     initalSorting?: sortedBy
     columnFormatter?: {[columnName: string]: (value: unknown) => void}
 }
@@ -22,13 +22,13 @@ interface sortByProps {
     direction: sortDirection
 }
 
-interface useSortReturn {
-    data: Array<unknown>
+interface useSortReturn<T> {
+    data: Array<T>
     onSortBy: (key: string, direction?: sortDirection) => void
     sortedBy?: sortedBy
 }
 
-export function useSort(props: useSortProps): useSortReturn {
+export function useSort<T>(props: useSortProps<T>): useSortReturn<T> {
     const {data, initalSorting, columnFormatter} = props
 
     const [sortedBy, setSortedBy] = useState<sortedBy | undefined>(initalSorting)
@@ -68,13 +68,13 @@ export function useSort(props: useSortProps): useSortReturn {
                     return defaultCompare(a[k] || '', b[k] || '')
                 }),
             )
-            return sortedFlatArray.flatMap(x => unflatten(x))
+            return sortedFlatArray.flatMap<T>(x => unflatten(x))
         }
         return undefined
     }, [flatArray, sortedBy, formatRow])
 
     return {
-        data: sortedArray || data,
+        data: sortedArray ?? data,
         onSortBy,
         sortedBy,
     }

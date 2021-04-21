@@ -1,8 +1,8 @@
 import {renderHook, act} from '@testing-library/react-hooks'
 
-import {useSort, isSortedBy, sortDirection} from '../index'
+import {useSort, isSortedBy, sortDirection} from '../.'
 
-import dataList from '../../example/dataList.json'
+const dataList = require('../example/dataList.json')
 
 test('empty data', () => {
     const {result} = renderHook(() =>

@@ -1,15 +1,15 @@
-import React, {useState, useEffect} from 'react'
-import ReactDOM from 'react-dom'
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 
-import {useFilter, useSort, isSortedBy} from '../dist/index.cjs.js'
+import {useFilter, useSort, isSortedBy} from '../.'
 
-import list from './dataList.json'
+const list = require('./dataList.json')
 
-function Example() {
-    const [query, setQuery] = useState('')
-    const [queryParts, setQueryParts] = useState({})
+function Example(): JSX.Element {
+    const [query, setQuery] = React.useState('')
+    const [queryParts, setQueryParts] = React.useState({})
 
-    useEffect(() => {
+    React.useEffect(() => {
         setQuery(
             Object.keys(queryParts)
                 .filter(k => queryParts[k].length > 0)
@@ -19,7 +19,11 @@ function Example() {
     }, [queryParts])
 
     const columnFormatter = {
-        'person.firstName': x => String(x).split('').reverse().join(''),
+        'person.firstName': x =>
+            String(x)
+                .split('')
+                .reverse()
+                .join(''),
     }
 
     const {data: filterdList} = useFilter({data: list, query, columnFormatter})
@@ -125,6 +129,6 @@ function Example() {
         </div>
     )
 }
-let App = document.getElementById('app')
+let App = document.getElementById('root')
 
 ReactDOM.render(<Example />, App)

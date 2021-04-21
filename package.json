@@ -10,68 +10,56 @@
         "type": "git",
         "url": "https://github.com/numero33/react-table-util.git"
     },
-    "engines": {
-        "node": ">8.0.0"
-    },
-    "keywords": [
-        "react",
-        "reactjs",
-        "react-table",
-        "list",
-        "table",
-        "datagrid"
-    ],
-    "main": "dist/index.cjs.js",
-    "module": "dist/index.esm.js",
-    "jsnext:main": "build/index.es.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "typings": "dist/index.d.ts",
+    "module": "dist/react-table-util.esm.js",
     "files": [
         "dist"
     ],
-    "sideEffects": false,
+    "engines": {
+        "node": ">=10"
+    },
     "scripts": {
-        "build": "run-s clean bundle",
-        "bundle": "rollup -c",
-        "bundle:watch": "rollup -cw",
-        "start": "run-s clean bundle:watch",
-        "clean": "run-p clean:*",
-        "clean:dist": "rm -rf dist",
-        "lint": "eslint src/",
-        "prepare": "run-s build",
-        "test": "jest --coverage",
-        "test:watch": "jest --coverage --watchAll"
+        "start": "tsdx watch",
+        "build": "tsdx build",
+        "test": "tsdx test --passWithNoTests",
+        "test:watch": "tsdx test --watch",
+        "test:coverage": "tsdx test --coverage",
+        "lint": "tsdx lint",
+        "prepare": "tsdx build",
+        "size": "size-limit",
+        "analyze": "size-limit --why"
     },
     "peerDependencies": {
-        "react": ">=17.0.1",
-        "react-dom": ">=17.0.1"
+        "react": ">=16",
+        "react-dom": ">=16"
     },
+    "husky": {
+        "hooks": {
+            "pre-commit": "tsdx lint"
+        }
+    },
+    "size-limit": [
+        {
+            "path": "dist/react-table-util.cjs.production.min.js",
+            "limit": "10 KB"
+        },
+        {
+            "path": "dist/react-table-util.esm.js",
+            "limit": "10 KB"
+        }
+    ],
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^18.0.0",
-        "@rollup/plugin-node-resolve": "^11.2.1",
-        "@rollup/plugin-typescript": "^8.2.1",
+        "@size-limit/preset-small-lib": "^4.10.2",
         "@testing-library/react-hooks": "^5.1.1",
         "@types/flat": "^5.0.1",
-        "@types/jest": "^26.0.22",
         "@types/react": "^17.0.3",
-        "@typescript-eslint/eslint-plugin": "^4.22.0",
-        "@typescript-eslint/parser": "^4.22.0",
-        "coveralls": "^3.1.0",
-        "eslint": "^7.24.0",
-        "eslint-config-prettier": "^8.2.0",
-        "eslint-plugin-prettier": "^3.4.0",
-        "eslint-plugin-react": "^7.23.2",
-        "eslint-plugin-react-hooks": "^4.2.0",
-        "jest": "^26.6.3",
-        "npm-run-all": "^4.1.5",
-        "prettier": "^2.2.1",
+        "@types/react-dom": "^17.0.3",
+        "husky": "^6.0.0",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "react-refresh": "^0.10.0",
-        "react-test-renderer": "^17.0.2",
-        "rollup": "^2.45.2",
-        "rollup-plugin-typescript2": "^0.30.0",
-        "ts-jest": "^26.5.4",
-        "ts-node": "^9.1.1",
+        "size-limit": "^4.10.2",
+        "tsdx": "^0.14.1",
         "tslib": "^2.2.0",
         "typescript": "^4.2.4"
     },

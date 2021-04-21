@@ -4,12 +4,25 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <title>react-table-util example</title>
-        <link rel="stylesheet" href="./style.css" />
+        <title>react-table-util Playground</title>
+        <style>
+            .row {
+                display: flex;
+                border-bottom: 1px solid #e6e6e6;
+                padding: 0.5rem 0;
+            }
+            .row > div {
+                padding: 0 0.5rem;
+                flex: 1 0 1rem;
+            }
+            .row.header {
+                font-weight: bold;
+            }
+        </style>
     </head>
 
     <body>
-        <div id="app"></div>
-        <script src="./index.js"></script>
+        <div id="root"></div>
+        <script src="./index.tsx"></script>
     </body>
 </html>

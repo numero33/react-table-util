@@ -1,15 +1,15 @@
 import {useCallback, useMemo} from 'react'
-import {QueryGroup, filterConjunctive} from './queryGroup'
+import {filterConjunctive, QueryGroup} from './queryGroup'
 import flat, {unflatten} from 'flat'
 
-interface useFilterProps {
-    data: Array<unknown>
+interface useFilterProps<T> {
+    data: Array<T>
     query: string
     columnFormatter?: {[columnName: string]: (value: unknown) => void}
 }
 
-interface useFilterReturn {
-    data: Array<unknown>
+interface useFilterReturn<T> {
+    data: Array<T>
 }
 
 const reBrace = /\(((?!(\(|\))).)*\)/gim
@@ -18,7 +18,7 @@ const reReplaceBrace = /^\s*\(+\s*|\s*\)+\s*$/g
 const reReplaceApostrophe = /^\s*\'*|\'*\s*$/g
 const reSplit = /\s+(and|or)\s+/gim
 
-export function useFilter(props: useFilterProps): useFilterReturn {
+export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
     const {data, query, columnFormatter} = props
 
     const formatRow = useCallback(
@@ -42,8 +42,9 @@ export function useFilter(props: useFilterProps): useFilterReturn {
         while (newQuery.includes('(')) {
             const matches = newQuery.matchAll(reBrace)
 
-            for (const match of matches) {
-                const m = match[0].replace(reReplaceBrace, '')
+            let result = matches.next()
+            while (!result.done) {
+                const m = result.value[0].replace(reReplaceBrace, '')
 
                 // if (m.includes('and') && m.includes('or')) return {data: [], error: Error('mixed and/or')}
                 if (/\s+and\s+/gim.test(m) && /\s+or\s+/gim.test(m)) return null
@@ -57,8 +58,9 @@ export function useFilter(props: useFilterProps): useFilterReturn {
                     }
                 }
 
-                newQuery = newQuery.replace(match[0], 'sq' + subQuerys.length)
+                newQuery = newQuery.replace(result.value[0], 'sq' + subQuerys.length)
                 if (group.parts.length > 0) subQuerys.push(group)
+                result = matches.next()
             }
         }
 
@@ -66,14 +68,14 @@ export function useFilter(props: useFilterProps): useFilterReturn {
         return subQuerys[subQuerys.length - 1]
     }, [query])
 
-    const flatArray: Array<unknown> = useMemo(() => data.flatMap(x => flat(x)), [data])
+    const flatArray: Array<T> = useMemo(() => data.flatMap(x => flat(x)), [data])
 
-    const newData: Array<unknown> | undefined = useMemo(() => {
+    const newData: Array<T> | undefined = useMemo(() => {
         if (queryFilter !== null) return flatArray.filter(x => queryFilter.filter(formatRow(x))).flatMap(x => unflatten(x))
         return undefined
     }, [flatArray, queryFilter, formatRow])
 
     return {
-        data: newData || data,
+        data: newData ?? data,
     }
 }
