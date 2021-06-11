@@ -1,6 +1,6 @@
 import {renderHook, act} from '@testing-library/react-hooks'
 
-import {useSort, isSortedBy, sortDirection} from '../.'
+import {useSort, isSortedBy, sortDirection} from '../src'
 
 const dataList = require('../example/dataList.json')
 
@@ -109,7 +109,11 @@ test('sorting columnFormatter', () => {
             data: dataList,
             initalSorting: {'person.firstName': {direction: sortDirection.ascending}},
             columnFormatter: {
-                'person.firstName': x => String(x).split('').reverse().join(''),
+                'person.firstName': x =>
+                    String(x)
+                        .split('')
+                        .reverse()
+                        .join(''),
                 'person.nothingtoformat': x => x,
             },
         }),

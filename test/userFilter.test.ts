@@ -1,6 +1,6 @@
 import {renderHook} from '@testing-library/react-hooks'
 
-import {useFilter} from '../.'
+import {useFilter} from '../src'
 
 const dataList = require('../example/dataList.json')
 
@@ -257,13 +257,41 @@ test('group and/or, (firstName start with a and lastName starts with c or progre
     expect(result.current.data.length).toBe(547)
 })
 
-test('simple equal string, columnFormatter', () => {
+test('simple equal string, columnFormatter existing column', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: `person.firstName === '${String('night 41ruc').split('').reverse().join('')}'`,
+            query: `person.firstName === '${String('night 41ruc')
+                .split('')
+                .reverse()
+                .join('')}'`,
             columnFormatter: {
-                'person.firstName': x => String(x).split('').reverse().join(''),
+                'person.firstName': x =>
+                    String(x)
+                        .split('')
+                        .reverse()
+                        .join(''),
+            },
+        }),
+    )
+
+    expect(result.current.data.length).toBe(1)
+})
+
+test('simple equal string, columnFormatter computed column', () => {
+    const {result} = renderHook(() =>
+        useFilter({
+            data: dataList,
+            query: `person === '${String('night 41ruc')
+                .split('')
+                .reverse()
+                .join('')}'`,
+            columnFormatter: {
+                person: x =>
+                    String(x.firstName)
+                        .split('')
+                        .reverse()
+                        .join(''),
             },
         }),
     )
