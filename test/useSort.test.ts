@@ -103,7 +103,7 @@ test('simple sorting', () => {
     expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.ascending)
 })
 
-test('sorting columnFormatter', () => {
+test('sorting columnFormatter existing column', () => {
     const {result} = renderHook(() =>
         useSort({
             data: dataList,
@@ -125,6 +125,30 @@ test('sorting columnFormatter', () => {
     expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
     expect(result.current.data.length).toBe(dataList.length)
     expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.ascending)
+})
+
+test('sorting columnFormatter computed column', () => {
+    const {result} = renderHook(() =>
+        useSort({
+            data: dataList,
+            initalSorting: {person: {direction: sortDirection.ascending}},
+            columnFormatter: {
+                person: x =>
+                    String(x.firstName)
+                        .split('')
+                        .reverse()
+                        .join(''),
+                'person.nothingtoformat': x => x,
+            },
+        }),
+    )
+
+    expect(result.current.data[0]).toStrictEqual(dataList[523])
+    expect(result.current.data[0]).not.toStrictEqual(dataList[0])
+    expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[641])
+    expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
+    expect(result.current.data.length).toBe(dataList.length)
+    expect(isSortedBy(result.current.sortedBy, 'person')).toBe(sortDirection.ascending)
 })
 
 test('sorting columnFormatter empty keys', () => {
