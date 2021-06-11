@@ -5,7 +5,7 @@ import flat, {unflatten} from 'flat'
 interface useFilterProps<T> {
     data: Array<T>
     query: string
-    columnFormatter?: {[columnName: string]: (value: unknown) => void}
+    columnFormatter?: {[columnName: string]: (value: any) => any}
 }
 
 interface useFilterReturn<T> {
@@ -21,13 +21,23 @@ const reSplit = /\s+(and|or)\s+/gim
 export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
     const {data, query, columnFormatter} = props
 
-    const formatRow = useCallback(
+    const formatRowFlat = useCallback(
         row => {
             if (columnFormatter === undefined) return row
             const keys = Object.keys(columnFormatter)
             if (keys.length === 0) return row
             const tmp = {...row}
-            for (const c of keys) if (c in tmp) tmp[c] = columnFormatter[c](row[c])
+            for (const c of keys) {
+                if (c in tmp) tmp[c] = columnFormatter[c](row[c])
+                else {
+                    const objectKeys = Object.keys(tmp).filter(x => x.startsWith(c))
+                    if (objectKeys.length > 0) {
+                        let tmpFlatObj = {}
+                        for (const objectKey of objectKeys) tmpFlatObj = {...tmpFlatObj, [objectKey.replace(c + '.', '')]: tmp[objectKey]}
+                        tmp[c] = columnFormatter[c](unflatten(tmpFlatObj))
+                    }
+                }
+            }
             return tmp
         },
         [columnFormatter],
@@ -71,9 +81,9 @@ export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
     const flatArray: Array<T> = useMemo(() => data.flatMap(x => flat(x)), [data])
 
     const newData: Array<T> | undefined = useMemo(() => {
-        if (queryFilter !== null) return flatArray.filter(x => queryFilter.filter(formatRow(x))).flatMap(x => unflatten(x))
+        if (queryFilter !== null) return flatArray.filter(x => queryFilter.filter(formatRowFlat(x))).flatMap(x => unflatten(x))
         return undefined
-    }, [flatArray, queryFilter, formatRow])
+    }, [flatArray, queryFilter, formatRowFlat])
 
     return {
         data: newData ?? data,
