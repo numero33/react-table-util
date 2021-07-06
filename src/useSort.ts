@@ -48,14 +48,18 @@ export function useSort<T>(props: useSortProps<T>): useSortReturn<T> {
             if (keys.length === 0) return row
             const tmp = {...row}
             for (const c of keys) {
+                // exact column name
                 if (c in tmp) tmp[c] = neededColumnFormatters[c](row[c])
                 else {
                     const objectKeys = Object.keys(tmp).filter(x => x.startsWith(c))
                     if (objectKeys.length > 0) {
+                        // child object
                         let tmpFlatObj = {}
                         for (const objectKey of objectKeys) tmpFlatObj = {...tmpFlatObj, [objectKey.replace(c + '.', '')]: tmp[objectKey]}
                         tmp[c] = neededColumnFormatters[c](unflatten(tmpFlatObj))
                     }
+                    // new column
+                    else tmp[c] = neededColumnFormatters[c](unflatten(row))
                 }
             }
             return tmp

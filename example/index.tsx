@@ -24,6 +24,7 @@ function Example(): JSX.Element {
                 .split('')
                 .reverse()
                 .join(''),
+        lastNameNewColumn: row => row.person.lastName,
     }
 
     const {data: filterdList} = useFilter({data: list, query, columnFormatter})
@@ -56,14 +57,14 @@ function Example(): JSX.Element {
                     />
                 </div>
                 <div>
-                    <span onClick={() => onSortBy('person.lastName')}>lastName {isSortedBy(sortedBy, 'person.lastName') > 0 ? (isSortedBy(sortedBy, 'person.lastName') === 1 ? `Up` : `Down`) : `Sort`}</span>
+                    <span onClick={() => onSortBy('lastNameNewColumn')}>lastName {isSortedBy(sortedBy, 'lastNameNewColumn') > 0 ? (isSortedBy(sortedBy, 'lastNameNewColumn') === 1 ? `Up` : `Down`) : `Sort`}</span>
                     <input
                         type="text"
                         style={{width: '100%'}}
-                        value={queryParts['person.lastName']}
+                        value={queryParts['lastNameNewColumn']}
                         onChange={e => {
                             const v = e.target.value
-                            setQueryParts(x => ({...x, 'person.lastName': v}))
+                            setQueryParts(x => ({...x, lastNameNewColumn: v}))
                         }}
                     />
                 </div>
