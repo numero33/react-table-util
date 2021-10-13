@@ -50,7 +50,7 @@
         }
     ],
     "devDependencies": {
-        "@size-limit/preset-small-lib": "^6.0.2",
+        "@size-limit/preset-small-lib": "^6.0.3",
         "@testing-library/react-hooks": "^7.0.2",
         "@types/flat": "^5.0.2",
         "@types/react": "^17.0.27",
