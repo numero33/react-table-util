@@ -61,15 +61,20 @@ export class QueryGroup {
 
     addCompare(left: string, operator: string, right: any): QueryGroup {
         if (['==', '!='].includes(operator)) {
+            let pattern = right
+            let flags = 'i'
             if (right[0] == '/') {
                 const i = right.lastIndexOf('/')
                 if (i > 0) {
-                    try {
-                        right = new RegExp(right.slice(1, i), right.slice(i + 1))
-                    } catch {}
+                    pattern = right.substring(1, i)
+                    flags = right.substring(i + 1)
                 }
             }
-            if (!(right instanceof RegExp)) right = new RegExp(right, 'i')
+            try {
+                right = new RegExp(pattern, flags)
+            } catch {
+                right = new RegExp(escapeStringRegexp(pattern), flags)
+            }
         }
         this.parts.push({left, operator, right})
         return this
@@ -79,4 +84,11 @@ export class QueryGroup {
         this.parts.push(group)
         return this
     }
+}
+
+// https://github.com/sindresorhus/escape-string-regexp
+export const escapeStringRegexp = (string: string) => {
+    // Escape characters with special meaning either inside or outside character sets.
+    // Use a simple backslash escape when it’s always valid, and a `\xnn` escape when the simpler form would be disallowed by Unicode patterns’ stricter grammar.
+    return string.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&').replace(/-/g, '\\x2d')
 }

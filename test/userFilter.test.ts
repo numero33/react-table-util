@@ -298,3 +298,25 @@ test('simple equal string, columnFormatter computed column', () => {
 
     expect(result.current.data.length).toBe(1)
 })
+
+test('filter with regex key *', () => {
+    const {result} = renderHook(() =>
+        useFilter({
+            data: dataList,
+            query: `person.firstName == '*'`,
+        }),
+    )
+
+    expect(result.current.data.length).toBe(1)
+})
+
+test('filter with regex key +', () => {
+    const {result} = renderHook(() =>
+        useFilter({
+            data: dataList,
+            query: `person.firstName == '+'`,
+        }),
+    )
+
+    expect(result.current.data.length).toBe(1)
+})
