@@ -4,6 +4,17 @@ export interface Comparer {
     right: any
 }
 
+export enum Operator {
+    Eq = '===',
+    NotEq = '!==',
+    EqReg = '==',
+    NotEqReg = '!=',
+    Gt = '>',
+    GtOrEq = '>=',
+    Lt = '<',
+    LtOrEq = '<=',
+}
+
 export enum filterConjunctive {
     and,
     or,
@@ -39,28 +50,28 @@ export class QueryGroup {
 
     compare(c: Comparer, row: any): boolean {
         switch (c.operator) {
-            case '===':
+            case Operator.Eq:
                 return row[c.left] == c.right
-            case '!==':
+            case Operator.NotEq:
                 return row[c.left] != c.right
-            case '==':
+            case Operator.EqReg:
                 return c.right.test(row[c.left])
-            case '!=':
+            case Operator.NotEqReg:
                 return !c.right.test(row[c.left])
-            case '>':
+            case Operator.Gt:
                 return row[c.left] > c.right
-            case '>=':
+            case Operator.GtOrEq:
                 return row[c.left] >= c.right
-            case '<':
+            case Operator.Lt:
                 return row[c.left] < c.right
-            case '<=':
+            case Operator.LtOrEq:
                 return row[c.left] <= c.right
         }
         return false
     }
 
-    addCompare(left: string, operator: string, right: any): QueryGroup {
-        if (['==', '!='].includes(operator)) {
+    addCompare(left: string, operator: Operator, right: any): QueryGroup {
+        if ([Operator.EqReg, Operator.NotEqReg].includes(operator)) {
             let pattern = right
             let flags = 'i'
             if (right[0] == '/') {

@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react'
-import {filterConjunctive, QueryGroup} from './queryGroup'
+import {filterConjunctive, Operator, QueryGroup} from './queryGroup'
 import flat, {unflatten} from 'flat'
 
 interface useFilterProps<T> {
@@ -67,7 +67,7 @@ export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
                 for (const c of m.split(reSplit)) {
                     const s = reCondition.exec(c)
                     if (s !== null) {
-                        if (s[1] !== undefined) group.addCompare(s[1], s[2], s[3].replace(reReplaceApostrophe, ''))
+                        if (s[1] !== undefined) group.addCompare(s[1], s[2] as Operator, s[3].replace(reReplaceApostrophe, ''))
                         else if (s[4] !== undefined) group.addGroup(subQuerys[Number(s[4])])
                     }
                 }
