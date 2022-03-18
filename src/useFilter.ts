@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react'
-import {filterConjunctive, QueryGroup} from './queryGroup'
+import {QueryGroup} from './queryGroup'
 import flat, {unflatten} from 'flat'
 
 export enum Operator {
@@ -11,6 +11,11 @@ export enum Operator {
     GtOrEq = '>=',
     Lt = '<',
     LtOrEq = '<=',
+}
+
+export enum FilterConjunctive {
+    and,
+    or,
 }
 
 interface useFilterProps<T> {
@@ -74,7 +79,7 @@ export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
                 // if (m.includes('and') && m.includes('or')) return {data: [], error: Error('mixed and/or')}
                 if (/\s+and\s+/gim.test(m) && /\s+or\s+/gim.test(m)) return null
 
-                const group = new QueryGroup(m.includes('and') ? filterConjunctive.and : filterConjunctive.or)
+                const group = new QueryGroup(m.includes('and') ? FilterConjunctive.and : FilterConjunctive.or)
                 for (const c of m.split(reSplit)) {
                     const s = reCondition.exec(c)
                     if (s !== null) {

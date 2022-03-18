@@ -1,4 +1,4 @@
-import {Operator} from '.'
+import {FilterConjunctive, Operator} from '.'
 
 export interface Comparer {
     left: any
@@ -6,16 +6,11 @@ export interface Comparer {
     right: any
 }
 
-export enum filterConjunctive {
-    and,
-    or,
-}
-
 export class QueryGroup {
     parts: Array<Comparer | QueryGroup>
-    filterConjunctive: filterConjunctive
+    filterConjunctive: FilterConjunctive
 
-    constructor(conjunctive: filterConjunctive = filterConjunctive.and) {
+    constructor(conjunctive: FilterConjunctive = FilterConjunctive.and) {
         this.parts = []
         this.filterConjunctive = conjunctive
         return this
@@ -31,11 +26,11 @@ export class QueryGroup {
                 if (part instanceof QueryGroup) result = part.filter(row)
                 else result = this.compare(part, row)
 
-                if (!result && this.filterConjunctive === filterConjunctive.and) return false
-                if (result && this.filterConjunctive === filterConjunctive.or) return true
+                if (!result && this.filterConjunctive === FilterConjunctive.and) return false
+                if (result && this.filterConjunctive === FilterConjunctive.or) return true
             }
         }
-        if (this.filterConjunctive === filterConjunctive.and) return true
+        if (this.filterConjunctive === FilterConjunctive.and) return true
         return false
     }
 
