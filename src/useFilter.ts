@@ -1,6 +1,17 @@
 import {useCallback, useMemo} from 'react'
-import {filterConjunctive, Operator, QueryGroup} from './queryGroup'
+import {filterConjunctive, QueryGroup} from './queryGroup'
 import flat, {unflatten} from 'flat'
+
+export enum Operator {
+    Eq = '===',
+    NotEq = '!==',
+    EqReg = '==',
+    NotEqReg = '!=',
+    Gt = '>',
+    GtOrEq = '>=',
+    Lt = '<',
+    LtOrEq = '<=',
+}
 
 interface useFilterProps<T> {
     data: Array<T>

@@ -1,18 +1,9 @@
+import {Operator} from '.'
+
 export interface Comparer {
     left: any
     operator: string
     right: any
-}
-
-export enum Operator {
-    Eq = '===',
-    NotEq = '!==',
-    EqReg = '==',
-    NotEqReg = '!=',
-    Gt = '>',
-    GtOrEq = '>=',
-    Lt = '<',
-    LtOrEq = '<=',
 }
 
 export enum filterConjunctive {
