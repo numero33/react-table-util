@@ -14,8 +14,8 @@ export enum Operator {
 }
 
 export enum FilterConjunctive {
-    and,
-    or,
+    And = 'and',
+    Or = 'or',
 }
 
 interface useFilterProps<T> {
@@ -79,7 +79,7 @@ export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
                 // if (m.includes('and') && m.includes('or')) return {data: [], error: Error('mixed and/or')}
                 if (/\s+and\s+/gim.test(m) && /\s+or\s+/gim.test(m)) return null
 
-                const group = new QueryGroup(m.includes('and') ? FilterConjunctive.and : FilterConjunctive.or)
+                const group = new QueryGroup(m.includes('and') ? FilterConjunctive.And : FilterConjunctive.Or)
                 for (const c of m.split(reSplit)) {
                     const s = reCondition.exec(c)
                     if (s !== null) {

@@ -10,7 +10,7 @@ export class QueryGroup {
     parts: Array<Comparer | QueryGroup>
     filterConjunctive: FilterConjunctive
 
-    constructor(conjunctive: FilterConjunctive = FilterConjunctive.and) {
+    constructor(conjunctive: FilterConjunctive = FilterConjunctive.And) {
         this.parts = []
         this.filterConjunctive = conjunctive
         return this
@@ -26,11 +26,11 @@ export class QueryGroup {
                 if (part instanceof QueryGroup) result = part.filter(row)
                 else result = this.compare(part, row)
 
-                if (!result && this.filterConjunctive === FilterConjunctive.and) return false
-                if (result && this.filterConjunctive === FilterConjunctive.or) return true
+                if (!result && this.filterConjunctive === FilterConjunctive.And) return false
+                if (result && this.filterConjunctive === FilterConjunctive.Or) return true
             }
         }
-        if (this.filterConjunctive === FilterConjunctive.and) return true
+        if (this.filterConjunctive === FilterConjunctive.And) return true
         return false
     }
 
