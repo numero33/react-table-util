@@ -9,7 +9,7 @@ const rowFormatter = (row: any, formatter?: {[columnName: string]: (value: any) 
         // exact column name
         if (c in tmp) tmp[c] = formatter[c](row[c])
         else {
-            const reg = new RegExp('^' + c + '($|\\..*)')
+            const reg = new RegExp('^' + c + '($|\\.)')
             const objectKeys = Object.keys(tmp).filter(x => reg.test(x))
             if (objectKeys.length > 0) {
                 // child object
