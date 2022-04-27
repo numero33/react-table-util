@@ -11,7 +11,6 @@ const rowFormatter = (row: any, formatter?: {[columnName: string]: (value: any) 
         else {
             const reg = new RegExp('^' + c + '($|\\..*)')
             const objectKeys = Object.keys(tmp).filter(x => reg.test(x))
-            console.debug(reg, objectKeys)
             if (objectKeys.length > 0) {
                 // child object
                 let tmpFlatObj = {}
