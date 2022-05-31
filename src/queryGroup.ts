@@ -1,4 +1,18 @@
-import {FilterConjunctive, Operator} from '.'
+export enum Operator {
+    Eq = '===',
+    NotEq = '!==',
+    EqReg = '==',
+    NotEqReg = '!=',
+    Gt = '>',
+    GtOrEq = '>=',
+    Lt = '<',
+    LtOrEq = '<=',
+}
+
+export enum FilterConjunctive {
+    And = 'and',
+    Or = 'or',
+}
 
 export interface Comparer {
     left: any
