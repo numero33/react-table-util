@@ -2,6 +2,8 @@ import packageJson from './package.json'
 import {terser} from 'rollup-plugin-terser'
 import typescript from 'rollup-plugin-typescript2'
 
+const external = Object.keys(packageJson.dependencies || []).concat(Object.keys(packageJson.peerDependencies || []))
+
 export default {
     input: 'src/index.ts',
     output: [
@@ -26,7 +28,7 @@ export default {
             sourcemap: process.env.ENVIRONMENT === 'DEV',
         },
     ],
-    external: Object.keys(packageJson?.dependencies ?? []).concat(Object.keys(packageJson?.peerDependencies ?? [])),
+    external,
     plugins: [
         typescript(),
         process.env.ENVIRONMENT !== 'DEV' &&
@@ -50,7 +52,6 @@ export default {
                 },
                 output: {
                     comments: false,
-                    wrap_iife: true,
                 },
             }),
     ],
