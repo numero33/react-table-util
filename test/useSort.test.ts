@@ -1,4 +1,7 @@
-import {renderHook, act} from '@testing-library/react-hooks'
+/**
+ * @jest-environment jsdom
+ */
+import {renderHook, act} from '@testing-library/react'
 
 import {useSort, isSortedBy, sortDirection} from '../src'
 
@@ -109,11 +112,7 @@ test('sorting columnFormatter existing column', () => {
             data: dataList,
             initalSorting: {'person.firstName': {direction: sortDirection.ascending}},
             columnFormatter: {
-                'person.firstName': x =>
-                    String(x)
-                        .split('')
-                        .reverse()
-                        .join(''),
+                'person.firstName': x => String(x).split('').reverse().join(''),
                 'person.nothingtoformat': x => x,
             },
         }),
@@ -133,11 +132,7 @@ test('sorting columnFormatter computed column', () => {
             data: dataList,
             initalSorting: {person: {direction: sortDirection.ascending}},
             columnFormatter: {
-                person: x =>
-                    String(x.firstName)
-                        .split('')
-                        .reverse()
-                        .join(''),
+                person: x => String(x.firstName).split('').reverse().join(''),
                 'person.nothingtoformat': x => x,
             },
         }),

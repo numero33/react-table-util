@@ -3,11 +3,7 @@ import rowFormatter from '../src/columnFormatter'
 
 const dataList = require('../example/dataList.json')
 
-const swapString = (x: string) =>
-    x
-        .split('')
-        .reverse()
-        .join('')
+const swapString = (x: string) => x.split('').reverse().join('')
 
 test('empty columnFormatter', () => {
     const result = rowFormatter(flat(dataList[0]), {})

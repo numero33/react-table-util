@@ -1,4 +1,7 @@
-import {renderHook} from '@testing-library/react-hooks'
+/**
+ * @jest-environment jsdom
+ */
+import {renderHook} from '@testing-library/react'
 
 import {useFilter} from '../src'
 
@@ -261,16 +264,9 @@ test('simple equal string, columnFormatter existing column', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: `person.firstName === '${String('night 41ruc')
-                .split('')
-                .reverse()
-                .join('')}'`,
+            query: `person.firstName === '${String('night 41ruc').split('').reverse().join('')}'`,
             columnFormatter: {
-                'person.firstName': x =>
-                    String(x)
-                        .split('')
-                        .reverse()
-                        .join(''),
+                'person.firstName': x => String(x).split('').reverse().join(''),
             },
         }),
     )
@@ -282,16 +278,9 @@ test('simple equal string, columnFormatter computed column', () => {
     const {result} = renderHook(() =>
         useFilter({
             data: dataList,
-            query: `person === '${String('night 41ruc')
-                .split('')
-                .reverse()
-                .join('')}'`,
+            query: `person === '${String('night 41ruc').split('').reverse().join('')}'`,
             columnFormatter: {
-                person: x =>
-                    String(x.firstName)
-                        .split('')
-                        .reverse()
-                        .join(''),
+                person: x => String(x.firstName).split('').reverse().join(''),
             },
         }),
     )
