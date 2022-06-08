@@ -2,7 +2,10 @@
 
 > React hooks for fast and efficiently sort/filter large lists
 
-[![Coverage Status](https://badgen.net/coveralls/c/github/numero33/react-table-util/master)](https://coveralls.io/github/numero33/react-table-util?branch=master) [![NPM registry](https://badgen.net/npm/v/react-table-util)](https://npmjs.com/react-table-util) [![bundlephobia](https://badgen.net/bundlephobia/minzip/react-table-util)](https://bundlephobia.com/package/react-table-util) [![NPM license](https://badgen.net/npm/license/react-table-util)](LICENSE.md) 
+[![Coverage Status](https://badgen.net/coveralls/c/github/numero33/react-table-util/master)](https://coveralls.io/github/numero33/react-table-util?branch=master)
+[![NPM registry](https://badgen.net/npm/v/react-table-util)](https://npmjs.com/react-table-util)
+[![bundlephobia](https://badgen.net/bundlephobia/minzip/react-table-util)](https://bundlephobia.com/package/react-table-util)
+[![NPM license](https://badgen.net/npm/license/react-table-util)](LICENSE.md) 
 
 ## Install
 
