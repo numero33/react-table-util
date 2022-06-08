@@ -3,12 +3,13 @@
         "browser": true,
         "es6": true
     },
-    "extends": ["eslint:recommended", "airbnb/hooks", "prettier"],
+    "parser": "@typescript-eslint/parser",
+    "extends": ["airbnb/hooks", "plugin:@typescript-eslint/recommended", "prettier"],
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
-    "plugins": ["import", "prettier"],
+    "plugins": ["prettier", "@typescript-eslint"],
     "parserOptions": {
         "sourceType": "module",
         "ecmaVersion": 2018,

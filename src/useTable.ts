@@ -46,7 +46,7 @@ export function useTable({columns}: useTableProps): useTableReturn {
     const resizeHandler = useCallback((e: Event) => {
         if (isTouchStartEvent(e) && (e as TouchEvent).touches && (e as TouchEvent).touches.length > 1) return
 
-        const clientX = isTouchStartEvent(e) ? Math.round((e as TouchEvent).touches[0]!.clientX) : (e as MouseEvent).clientX
+        const clientX = isTouchStartEvent(e) ? Math.round((e as TouchEvent).touches[0]?.clientX) : (e as MouseEvent).clientX
         resizeInfo.current.startOffset = clientX ?? 0
 
         const updateOffset = (clientXPos?: number) => {
@@ -60,7 +60,7 @@ export function useTable({columns}: useTableProps): useTableReturn {
 
         const onMove = (e: Event) => updateOffset((e as MouseEvent).clientX)
 
-        const onUp = (_: Event) => {
+        const onUp = () => {
             document.removeEventListener('mousemove', onMove)
             document.removeEventListener('mouseup', onUp)
 
@@ -83,6 +83,7 @@ export function useTable({columns}: useTableProps): useTableReturn {
         resizeInfo.current.needCalc = resizeInfo.current.startWidth !== (columnSizeRef.get(resizeInfo.current.column) ?? 0)
         document.addEventListener('mouseup', onUp)
         document.addEventListener('mousemove', onMove)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -103,12 +104,13 @@ export function useTable({columns}: useTableProps): useTableReturn {
             })
         })
         setColumnStore(returnColumns)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const columnReturn = useMemo(() => {
         const sum = columnStore.reduce((acc, column) => acc + (columnSizeRef.get(column.key) ?? 1), 0)
         return columnStore.map(column => ({...column, width: columnSizeRef.get(column.key) ?? 1, widthPercent: ((columnSizeRef.get(column.key) ?? 1) / sum) * 100, isResizing: resizeInfo.current.column === column.key}))
-    }, [columnStore, columnSizeRef, resizeInfo.current.column])
+    }, [columnStore, columnSizeRef])
 
     return {
         columns: columnReturn,
