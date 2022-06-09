@@ -1,21 +1,21 @@
 import {useCallback, useState, useEffect, useRef, useMemo} from 'react'
 
-interface useTableProps {
+export interface useTableProps {
     columns: {[columnKey: string]: ColumnProps}
 }
 
-interface ColumnProps {
+export interface ColumnProps {
     key?: string
     width?: number
 }
 
-interface useTableReturn {
+export interface useTableReturn {
     columns: ColumnReturn[]
     getColumn: (column: string) => ColumnReturn | undefined
     deltaOffset: number
 }
 
-interface ColumnReturn {
+export interface ColumnReturn {
     key: string
     accessorKey: string
     width: number
@@ -26,14 +26,14 @@ interface ColumnReturn {
     isResizing: boolean
 }
 
-interface ColumnResizeProps {
+export interface ColumnResizeProps {
     deltaOffset: number
     column: string
     startOffset: number
     startWidth: number
 }
 
-const isTouchStartEvent = (e: React.MouseEvent | React.TouchEvent) => (e as React.TouchEvent).type === 'touchstart'
+const isTouchStartEvent = (e: React.MouseEvent | React.TouchEvent | TouchEvent | MouseEvent) => (e as React.TouchEvent).type.startsWith('touch')
 
 export function useTable({columns}: useTableProps): useTableReturn {
     const [deltaOffset, setDeltaOffset] = useState(0)
@@ -49,7 +49,7 @@ export function useTable({columns}: useTableProps): useTableReturn {
         resizeInfo.current.startOffset = clientX ?? 0
 
         const updateOffset = (clientXPos?: number) => {
-            if (typeof clientXPos !== 'number') return
+            if (typeof clientXPos !== 'number' || isNaN(clientXPos)) return
 
             const deltaOffset = clientXPos - resizeInfo.current.startOffset
 
@@ -57,29 +57,33 @@ export function useTable({columns}: useTableProps): useTableReturn {
             resizeInfo.current.deltaOffset = deltaOffset
         }
 
-        const onMove = (e: MouseEvent) => updateOffset(e.clientX)
+        const onMove = (e: MouseEvent | TouchEvent) => updateOffset(isTouchStartEvent(e) ? Math.round((e as TouchEvent).touches[0]?.clientX) : (e as MouseEvent).clientX)
 
         const onUp = () => {
             document.removeEventListener('mousemove', onMove)
             document.removeEventListener('mouseup', onUp)
+            document.removeEventListener('touchmove', onMove)
+            document.removeEventListener('touchend', onUp)
 
-            const currentColumnKey = resizeInfo.current.column
-            const startWidth = resizeInfo.current.startWidth
-            const deltaOffset = resizeInfo.current.deltaOffset
+            const deltaOffset = resizeInfo.current.deltaOffset ?? 0
+            if (deltaOffset !== 0) {
+                const currentColumnKey = resizeInfo.current.column
+                const startWidth = resizeInfo.current.startWidth
 
-            setColumnSizeRef(columnSizeRef => {
-                const currentWidth = columnSizeRef?.[currentColumnKey] ?? 1
-                if (startWidth !== currentWidth) {
-                    const sumSteps = Object.keys(columnSizeRef).reduce((sum, key) => sum + columnSizeRef[key], 0)
+                setColumnSizeRef(columnSizeRef => {
+                    const currentWidth = columnSizeRef?.[currentColumnKey] ?? 1
+                    if (startWidth !== currentWidth) {
+                        const sumSteps = Object.keys(columnSizeRef).reduce((sum, key) => sum + columnSizeRef[key], 0)
 
-                    const fullWidthBefore = (startWidth / currentWidth) * sumSteps
+                        const fullWidthBefore = (startWidth / currentWidth) * sumSteps
 
-                    const deltaPercentage2 = (1 / fullWidthBefore) * Math.min(startWidth + deltaOffset, fullWidthBefore)
-                    if (deltaPercentage2 >= 1) return columnSizeRef
-                    return {...columnSizeRef, [currentColumnKey]: Math.round(((sumSteps - currentWidth) / (1 - deltaPercentage2)) * deltaPercentage2)}
-                }
-                return {...columnSizeRef, [currentColumnKey]: startWidth + deltaOffset}
-            })
+                        const deltaPercentage2 = (1 / fullWidthBefore) * Math.min(startWidth + deltaOffset, fullWidthBefore)
+                        if (deltaPercentage2 >= 1) return columnSizeRef
+                        return {...columnSizeRef, [currentColumnKey]: Math.round(((sumSteps - currentWidth) / (1 - deltaPercentage2)) * deltaPercentage2)}
+                    }
+                    return {...columnSizeRef, [currentColumnKey]: startWidth + deltaOffset}
+                })
+            }
 
             resizeInfo.current = {} as ColumnResizeProps
             setDeltaOffset(0)
@@ -87,6 +91,8 @@ export function useTable({columns}: useTableProps): useTableReturn {
 
         document.addEventListener('mouseup', onUp)
         document.addEventListener('mousemove', onMove)
+        document.addEventListener('touchend', onUp)
+        document.addEventListener('touchmove', onMove)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

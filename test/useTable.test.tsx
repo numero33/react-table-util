@@ -1,6 +1,6 @@
 import {renderHook, render, fireEvent, screen} from '@testing-library/react'
 
-import {useTable} from '../src'
+import {ColumnProps, useTable} from '../src'
 
 describe('init', () => {
     test('render without error', () => {
@@ -56,6 +56,7 @@ describe('column', () => {
         render(
             <div
                 onMouseDown={result.current.columns[0].getResizeHandler}
+                onTouchStart={result.current.columns[0].getResizeHandler}
                 data-testid="resize"
                 ref={r => {
                     if (!r) return
@@ -80,12 +81,11 @@ describe('column', () => {
 
     test('resize absolute negative', () => resizeAbsolute(-50))
 
-    const resizeRelative = async (delta: number) => {
-        const sizedWidth = 100
+    const resizeRelative = async (delta: number, columns: {[columnKey: string]: ColumnProps}) => {
         const shownWidth = 50
         const {result} = renderHook(() =>
             useTable({
-                columns: {first: {width: sizedWidth}, second: {width: sizedWidth}},
+                columns,
             }),
         )
 
@@ -122,11 +122,111 @@ describe('column', () => {
         await fireEvent.mouseUp(resizeContainer)
 
         expect(result.current.columns).not.toBeUndefined()
-        expect(result.current.columns[0].width).toEqual(delta > 0 ? 233 : 43)
+        if (Object.keys(columns).length === 1) expect(result.current.columns[0].width).toEqual(100)
+        else expect(result.current.columns[0].width).toEqual(delta > 0 ? 233 : 43)
     }
 
-    test('resize relative positive', () => resizeRelative(20))
-    test('resize relative negative', () => resizeRelative(-20))
+    test('resize relative one columne', () => resizeRelative(20, {first: {width: 100}}))
+    test('resize relative positive', () => resizeRelative(20, {first: {width: 100}, second: {width: 100}}))
+    test('resize relative negative', () => resizeRelative(-20, {first: {width: 100}, second: {width: 100}}))
+
+    test('resize double touch', async () => {
+        const {result} = renderHook(() =>
+            useTable({
+                columns: {first: {width: 100}},
+            }),
+        )
+
+        expect(result.current.columns).not.toBeUndefined()
+        expect(result.current.columns[0].width).toEqual(100)
+
+        render(<div onTouchStart={result.current.columns[0].getResizeHandler} data-testid="resize" />)
+
+        const resizeContainer = screen.getByTestId('resize')
+
+        await fireEvent.touchStart(resizeContainer, {
+            touches: [{clientX: 50}, {clientX: 100}],
+        })
+        await fireEvent.touchMove(resizeContainer, {clientX: 50})
+        await fireEvent.touchEnd(resizeContainer)
+
+        expect(result.current.columns).not.toBeUndefined()
+        expect(result.current.columns[0].width).toEqual(100)
+    })
+
+    test('resize touch', async () => {
+        const {result} = renderHook(() =>
+            useTable({
+                columns: {first: {width: 100}},
+            }),
+        )
+
+        expect(result.current.columns).not.toBeUndefined()
+        expect(result.current.columns[0].width).toEqual(100)
+
+        const mockGetBoundingClientRect = jest.fn(
+            () =>
+                ({
+                    height: 0,
+                    width: 100,
+                    x: 0,
+                    y: 0,
+                } as DOMRect),
+        )
+
+        render(
+            <div
+                onTouchStart={result.current.columns[0].getResizeHandler}
+                data-testid="resize"
+                ref={r => {
+                    if (!r) return
+                    r.getBoundingClientRect = mockGetBoundingClientRect
+                    result.current.columns[0].setRef(r)
+                }}
+            />,
+        )
+
+        const resizeContainer = screen.getByTestId('resize')
+
+        await fireEvent.touchStart(resizeContainer, {
+            touches: [{clientX: 0}],
+        })
+        await fireEvent.touchMove(resizeContainer, {
+            touches: [{clientX: 50}],
+        })
+        expect(result.current.deltaOffset).toEqual(50)
+        await fireEvent.touchEnd(resizeContainer)
+
+        expect(result.current.columns).not.toBeUndefined()
+        expect(result.current.columns[0].width).toEqual(150)
+    })
+
+    test('resize clientX undefined', async () => {
+        const {result} = renderHook(() =>
+            useTable({
+                columns: {first: {width: 100}},
+            }),
+        )
+
+        expect(result.current.columns).not.toBeUndefined()
+        expect(result.current.columns[0].width).toEqual(100)
+
+        render(<div onTouchStart={result.current.columns[0].getResizeHandler} data-testid="resize" />)
+
+        const resizeContainer = screen.getByTestId('resize')
+
+        await fireEvent.touchStart(resizeContainer, {
+            touches: [{clientX: 0}],
+        })
+        await fireEvent.touchMove(resizeContainer, {
+            touches: [{clientX: 'asdf'}],
+        })
+
+        await fireEvent.touchEnd(resizeContainer)
+
+        expect(result.current.columns).not.toBeUndefined()
+        expect(result.current.columns[0].width).toEqual(100)
+    })
 
     test('getColumn', () => {
         const {result} = renderHook(() =>
