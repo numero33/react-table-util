@@ -1,6 +1,7 @@
 import flat from 'flat'
 import rowFormatter from '../src/columnFormatter'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const dataList = require('../example/dataList.json')
 
 const swapString = (x: string) => x.split('').reverse().join('')

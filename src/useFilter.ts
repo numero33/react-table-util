@@ -1,32 +1,16 @@
 import {useCallback, useMemo} from 'react'
-import {QueryGroup} from './queryGroup'
+import {FilterConjunctive, Operator, QueryGroup} from './queryGroup'
 import flat, {unflatten} from 'flat'
-import rowFormatter from './columnFormatter'
-
-export enum Operator {
-    Eq = '===',
-    NotEq = '!==',
-    EqReg = '==',
-    NotEqReg = '!=',
-    Gt = '>',
-    GtOrEq = '>=',
-    Lt = '<',
-    LtOrEq = '<=',
-}
-
-export enum FilterConjunctive {
-    And = 'and',
-    Or = 'or',
-}
+import rowFormatter, {filterColumnFormatters, FlatRowFilter} from './columnFormatter'
 
 interface useFilterProps<T> {
-    data: Array<T>
+    data: T[]
     query: string
-    columnFormatter?: {[columnName: string]: (value: any) => any}
+    columnFormatter?: filterColumnFormatters
 }
 
 interface useFilterReturn<T> {
-    data: Array<T>
+    data: T[]
 }
 
 const reBrace = /\(((?!(\(|\))).)*\)/gim
@@ -38,13 +22,13 @@ const reSplit = /\s+(and|or)\s+/gim
 export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
     const {data, query, columnFormatter} = props
 
-    const formatRowFlat = useCallback((row: any) => rowFormatter(row, columnFormatter), [columnFormatter])
+    const formatRowFlat = useCallback((row: FlatRowFilter): FlatRowFilter => rowFormatter(row, columnFormatter), [columnFormatter])
 
     const queryFilter: QueryGroup | null = useMemo(() => {
         const trimQuery = query.trim()
         if (trimQuery.length === 0) return null
 
-        const subQuerys: Array<QueryGroup> = []
+        const subQuerys: QueryGroup[] = []
         let newQuery: string = '(' + trimQuery + ')'
         while (newQuery.includes('(')) {
             const matches = newQuery.matchAll(reBrace)
@@ -75,9 +59,9 @@ export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
         return subQuerys[subQuerys.length - 1]
     }, [query])
 
-    const flatArray: Array<T> = useMemo(() => data.flatMap(x => flat(x)), [data])
+    const flatArray: FlatRowFilter[] = useMemo(() => data.flatMap(x => flat(x)), [data])
 
-    const newData: Array<T> | undefined = useMemo(() => {
+    const newData: T[] | undefined = useMemo(() => {
         if (queryFilter !== null) return flatArray.filter(x => queryFilter.filter(formatRowFlat(x))).flatMap(x => unflatten(x))
         return undefined
     }, [flatArray, queryFilter, formatRowFlat])

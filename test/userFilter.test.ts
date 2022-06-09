@@ -1,10 +1,9 @@
-/**
- * @jest-environment jsdom
- */
 import {renderHook} from '@testing-library/react'
 
 import {useFilter} from '../src'
+import {Operator, QueryGroup} from '../src/queryGroup'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const dataList = require('../example/dataList.json')
 
 test('empty data/query/columnFormatter', () => {
@@ -308,4 +307,24 @@ test('filter with regex key +', () => {
     )
 
     expect(result.current.data.length).toBe(1)
+})
+
+test('filter empty', () => {
+    const {result} = renderHook(() =>
+        useFilter({
+            data: dataList,
+            query: `person.lastName === ''`,
+        }),
+    )
+
+    expect(result.current.data.length).toBe(1)
+})
+
+describe('querygroup', () => {
+    test('init', () => {
+        const group = new QueryGroup()
+        group.addCompare('1', Operator.Eq, '1')
+
+        expect(group.filter({'1': '1'})).toBe(true)
+    })
 })

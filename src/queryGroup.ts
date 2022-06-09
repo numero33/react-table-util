@@ -1,10 +1,37 @@
-import {FilterConjunctive, Operator} from '.'
+import {FlatRowFilter, FlatRowValueFilter} from './columnFormatter'
 
-export interface Comparer {
-    left: any
-    operator: string
-    right: any
+export enum Operator {
+    Eq = '===',
+    NotEq = '!==',
+    EqReg = '==',
+    NotEqReg = '!=',
+    Gt = '>',
+    GtOrEq = '>=',
+    Lt = '<',
+    LtOrEq = '<=',
 }
+
+export enum FilterConjunctive {
+    And = 'and',
+    Or = 'or',
+}
+
+export type Comparer =
+    | {
+          left: string
+          operator: Operator.Eq | Operator.NotEq
+          right: string | boolean
+      }
+    | {
+          left: string
+          operator: Operator.EqReg | Operator.NotEqReg
+          right: RegExp
+      }
+    | {
+          left: string
+          operator: Operator.Gt | Operator.GtOrEq | Operator.Lt | Operator.LtOrEq
+          right: number
+      }
 
 export class QueryGroup {
     parts: Array<Comparer | QueryGroup>
@@ -16,7 +43,7 @@ export class QueryGroup {
         return this
     }
 
-    filter(row: any): boolean {
+    filter(row: FlatRowFilter): boolean {
         const cloneParts = [...this.parts]
         while (cloneParts.length > 0) {
             const part = cloneParts.shift()
@@ -34,16 +61,16 @@ export class QueryGroup {
         return false
     }
 
-    compare(c: Comparer, row: any): boolean {
+    compare(c: Comparer, row: FlatRowFilter): boolean {
         switch (c.operator) {
             case Operator.Eq:
                 return row[c.left] == c.right
             case Operator.NotEq:
                 return row[c.left] != c.right
             case Operator.EqReg:
-                return c.right.test(row[c.left])
+                return c.right.test(String(row[c.left]))
             case Operator.NotEqReg:
-                return !c.right.test(row[c.left])
+                return !c.right.test(String(row[c.left]))
             case Operator.Gt:
                 return row[c.left] > c.right
             case Operator.GtOrEq:
@@ -56,15 +83,15 @@ export class QueryGroup {
         return false
     }
 
-    addCompare(left: string, operator: Operator, right: any): QueryGroup {
+    addCompare(left: string, operator: Operator, right: FlatRowValueFilter): QueryGroup {
         if ([Operator.EqReg, Operator.NotEqReg].includes(operator)) {
-            let pattern = right
+            let pattern = String(right)
             let flags = 'i'
-            if (right[0] == '/') {
-                const i = right.lastIndexOf('/')
+            if (String(right)[0] == '/') {
+                const i = String(right).lastIndexOf('/')
                 if (i > 0) {
-                    pattern = right.substring(1, i)
-                    flags = right.substring(i + 1)
+                    pattern = String(right).substring(1, i)
+                    flags = String(right).substring(i + 1)
                 }
             }
             try {
@@ -72,8 +99,14 @@ export class QueryGroup {
             } catch {
                 right = new RegExp(escapeStringRegexp(pattern), flags)
             }
+            this.parts.push({left, operator: operator as Operator.EqReg | Operator.NotEqReg, right: right as RegExp})
+        } else if ([Operator.Gt, Operator.GtOrEq, Operator.Lt, Operator.LtOrEq].includes(operator)) {
+            this.parts.push({left, operator: operator as Operator.Gt | Operator.GtOrEq | Operator.Lt | Operator.LtOrEq, right: Number(right)})
+        } else {
+            // Operator.Eq | Operator.NotEq
+            this.parts.push({left, operator: operator as Operator.Eq | Operator.NotEq, right: right as string | boolean})
         }
-        this.parts.push({left, operator, right})
+
         return this
     }
 

@@ -1,6 +1,19 @@
 import {unflatten} from 'flat'
 
-const rowFormatter = (row: any, formatter?: {[columnName: string]: (value: any) => any}) => {
+export type FlatRowValue = string | number
+export type FlatRowValueFilter = FlatRowValue | boolean | RegExp
+
+export type filterColumnFormatters = {[columnName: string]: (value: any) => FlatRowValueFilter}
+export type sortingColumnFormatters = {[columnName: string]: (value: any) => FlatRowValue}
+
+export interface FlatRow {
+    [key: string]: FlatRowValue
+}
+export interface FlatRowFilter {
+    [key: string]: FlatRowValueFilter
+}
+
+const rowFormatter = (row: FlatRowFilter, formatter?: filterColumnFormatters): FlatRowFilter => {
     if (formatter === undefined) return row
     const keys = Object.keys(formatter)
     if (keys.length === 0) return row

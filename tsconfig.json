@@ -2,6 +2,7 @@
     // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
     "include": ["src", "types"],
     "compilerOptions": {
+        "target": "es2018",
         "module": "esnext",
         "lib": ["dom", "esnext"],
         "importHelpers": true,
@@ -22,15 +23,14 @@
         // use Node's module resolution algorithm, instead of the legacy TS one
         "moduleResolution": "node",
         // transpile JSX to React.createElement
-        "jsx": "react",
+        "jsx": "react-jsx",
         // interop between ESM and CJS modules. Recommended by TS
         "esModuleInterop": true,
         // significant perf increase by skipping checking .d.ts files, particularly those in node_modules. Recommended by TS
         "skipLibCheck": true,
         // error out if import and file system have a casing mismatch. Recommended by TS
         "forceConsistentCasingInFileNames": true,
-        // `tsdx build` ignores this option, but it is commonly used when type-checking separately with `tsc`
-        "noEmit": true,
-        "resolveJsonModule":true,
+        "resolveJsonModule": true,
+        "outDir": "./dist"
     }
 }

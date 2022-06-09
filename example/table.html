@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>react-table-util Playground</title>
+        <style>
+            .row {
+                border-bottom: 1px solid #e6e6e6;
+                padding: 0.5rem 0;
+                height: 25px;
+            }
+            .row > div {
+                position: relative;
+                float: left;
+            }
+            .row.header {
+                font-weight: bold;
+            }
+            .resizer {
+                position: absolute;
+                right: 0;
+                top: 0;
+                height: 100%;
+                width: 5px;
+                background: rgba(0, 0, 0, 0.5);
+                cursor: col-resize;
+                user-select: none;
+                touch-action: none;
+            }
+
+            .resizer.isResizing {
+                background: blue;
+                opacity: 1;
+            }
+
+            @media (hover: hover) {
+                .resizer {
+                    opacity: 0;
+                }
+
+                *:hover > .resizer {
+                    opacity: 1;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="root"></div>
+        <script type="module" src="./table.tsx"></script>
+    </body>
+</html>
