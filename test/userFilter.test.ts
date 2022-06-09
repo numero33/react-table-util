@@ -1,10 +1,8 @@
-/**
- * @jest-environment jsdom
- */
 import {renderHook} from '@testing-library/react'
 
 import {useFilter} from '../src'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const dataList = require('../example/dataList.json')
 
 test('empty data/query/columnFormatter', () => {
@@ -304,6 +302,17 @@ test('filter with regex key +', () => {
         useFilter({
             data: dataList,
             query: `person.firstName == '+'`,
+        }),
+    )
+
+    expect(result.current.data.length).toBe(1)
+})
+
+test('filter empty', () => {
+    const {result} = renderHook(() =>
+        useFilter({
+            data: dataList,
+            query: `person.lastName === ''`,
         }),
     )
 
