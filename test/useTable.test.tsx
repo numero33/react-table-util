@@ -228,6 +228,29 @@ describe('column', () => {
         expect(result.current.columns[0].width).toEqual(100)
     })
 
+    test('resize missing clientX', async () => {
+        const {result} = renderHook(() =>
+            useTable({
+                columns: {first: {width: 100}},
+            }),
+        )
+
+        expect(result.current.columns).not.toBeUndefined()
+        expect(result.current.columns[0].width).toEqual(100)
+
+        render(<div onTouchStart={result.current.columns[0].getResizeHandler} data-testid="resize" />)
+
+        const resizeContainer = screen.getByTestId('resize')
+
+        await fireEvent.touchStart(resizeContainer, {
+            touches: [{clientY: 0}],
+        })
+        await fireEvent.touchEnd(resizeContainer)
+
+        expect(result.current.columns).not.toBeUndefined()
+        expect(result.current.columns[0].width).toEqual(100)
+    })
+
     test('getColumn', () => {
         const {result} = renderHook(() =>
             useTable({

@@ -34,6 +34,7 @@ export interface ColumnResizeProps {
 }
 
 const isTouchStartEvent = (e: React.MouseEvent | React.TouchEvent | TouchEvent | MouseEvent) => (e as React.TouchEvent).type.startsWith('touch')
+const getClientX = (e: React.MouseEvent | React.TouchEvent | TouchEvent | MouseEvent) => (isTouchStartEvent(e) ? Math.round((e as React.TouchEvent).touches[0].clientX ?? 0) : (e as React.MouseEvent).clientX)
 
 export function useTable({columns}: useTableProps): useTableReturn {
     const [deltaOffset, setDeltaOffset] = useState(0)
@@ -45,8 +46,8 @@ export function useTable({columns}: useTableProps): useTableReturn {
     const resizeHandler = useCallback((e: React.MouseEvent | React.TouchEvent) => {
         if (isTouchStartEvent(e) && (e as React.TouchEvent).touches && (e as React.TouchEvent).touches.length > 1) return
 
-        const clientX = isTouchStartEvent(e) ? Math.round((e as React.TouchEvent).touches[0]?.clientX) : (e as React.MouseEvent).clientX
-        resizeInfo.current.startOffset = clientX ?? 0
+        const clientX = getClientX(e)
+        resizeInfo.current.startOffset = clientX
 
         const updateOffset = (clientXPos?: number) => {
             if (typeof clientXPos !== 'number' || isNaN(clientXPos)) return
@@ -57,7 +58,7 @@ export function useTable({columns}: useTableProps): useTableReturn {
             resizeInfo.current.deltaOffset = deltaOffset
         }
 
-        const onMove = (e: MouseEvent | TouchEvent) => updateOffset(isTouchStartEvent(e) ? Math.round((e as TouchEvent).touches[0]?.clientX) : (e as MouseEvent).clientX)
+        const onMove = (e: MouseEvent | TouchEvent) => updateOffset(getClientX(e))
 
         const onUp = () => {
             document.removeEventListener('mousemove', onMove)
@@ -71,7 +72,7 @@ export function useTable({columns}: useTableProps): useTableReturn {
                 const startWidth = resizeInfo.current.startWidth
 
                 setColumnSizeRef(columnSizeRef => {
-                    const currentWidth = columnSizeRef?.[currentColumnKey] ?? 1
+                    const currentWidth = columnSizeRef[currentColumnKey]
                     if (startWidth !== currentWidth) {
                         const sumSteps = Object.keys(columnSizeRef).reduce((sum, key) => sum + columnSizeRef[key], 0)
 
@@ -103,7 +104,7 @@ export function useTable({columns}: useTableProps): useTableReturn {
             returnColumnSize[key] = columns[key].width ?? 250
             returnColumns.push({
                 key,
-                accessorKey: columns[key]?.key ?? key,
+                accessorKey: columns[key].key ?? key,
                 width: 0,
                 widthPercent: 0,
                 getResizeHandler: (event: React.MouseEvent | React.TouchEvent) => {
@@ -120,8 +121,8 @@ export function useTable({columns}: useTableProps): useTableReturn {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const columnSum = useMemo(() => columnStore.reduce((acc, column) => acc + (columnSizeRef?.[column.key] ?? 1), 0), [columnStore, columnSizeRef])
-    const columnReturn = columnStore.map(column => ({...column, width: columnSizeRef?.[column.key] ?? 1, widthPercent: ((columnSizeRef?.[column.key] ?? 1) / columnSum) * 100, isResizing: resizeInfo.current.column === column.key}))
+    const columnSum = useMemo(() => columnStore.reduce((acc, column) => acc + columnSizeRef[column.key], 0), [columnStore, columnSizeRef])
+    const columnReturn = columnStore.map(column => ({...column, width: columnSizeRef[column.key], widthPercent: (columnSizeRef[column.key] / columnSum) * 100, isResizing: resizeInfo.current.column === column.key}))
 
     return {
         columns: columnReturn,
