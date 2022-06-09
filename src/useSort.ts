@@ -45,7 +45,7 @@ export function useSort<T>(props: useSortProps<T>): useSortReturn<T> {
 
     const onSortBy = (key: string, direction?: sortDirection): void => {
         if (direction === sortDirection.none) setSortedBy(undefined)
-        else setSortedBy(x => ({[key]: {direction: direction || toggleSortDirection((x || {})[key])}}))
+        else setSortedBy(x => ({[key]: {direction: direction ?? toggleSortDirection((x ?? {})[key])}}))
     }
 
     const sortedArray = useMemo(() => {

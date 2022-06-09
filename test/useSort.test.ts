@@ -14,7 +14,7 @@ test('empty data', () => {
     expect(result.current.data).not.toBeNull()
 })
 
-test('missing inital sorting', () => {
+test('without inital sorting', () => {
     const {result} = renderHook(() =>
         useSort({
             data: dataList,
@@ -24,6 +24,23 @@ test('missing inital sorting', () => {
     expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[dataList.length - 1])
     expect(result.current.data[0]).not.toStrictEqual(dataList[1])
     expect(result.current.data.length).toBe(dataList.length)
+})
+
+test('auto toggle sorting', async () => {
+    const {result} = renderHook(() =>
+        useSort({
+            data: dataList,
+        }),
+    )
+    await act(() => result.current.onSortBy('person.firstName'))
+
+    expect(result.current.data[0]).toStrictEqual(dataList[963])
+    expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[702])
+
+    await act(() => result.current.onSortBy('person.firstName'))
+
+    expect(result.current.data[0]).toStrictEqual(dataList[702])
+    expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[963])
 })
 
 test('simple sorting', () => {
