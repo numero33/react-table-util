@@ -1,6 +1,6 @@
 {
     "name": "react-table-util",
-    "version": "0.0.21",
+    "version": "0.0.22",
     "author": "Patrick Malleier <github@numero33.com>",
     "license": "MIT",
     "bugs": {
@@ -11,10 +11,9 @@
         "url": "https://github.com/numero33/react-table-util.git"
     },
     "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
-    "module": "dist/module.js",
     "files": [
-        "dist"
+        "dist",
+        "src"
     ],
     "engines": {
         "node": ">=10"
