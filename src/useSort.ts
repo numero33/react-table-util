@@ -74,7 +74,8 @@ export function isSortedBy(sortedBy: sortedBy | undefined, key: string): sortDir
     return sortedBy !== undefined && sortedBy.hasOwnProperty(key) ? sortedBy[key].direction : sortDirection.none
 }
 
-const toggleSortDirection = (prevState: sortByProps | undefined) => (prevState !== undefined && prevState.direction === sortDirection.ascending ? sortDirection.descending : sortDirection.ascending)
+const toggleSortDirection = (prevState: sortByProps | undefined) =>
+    prevState !== undefined && prevState.direction === sortDirection.ascending ? sortDirection.descending : sortDirection.ascending
 
 const defaultCompare = (a: FlatRowValue, b: FlatRowValue): number => {
     return a === b ? 0 : a > b ? 1 : -1

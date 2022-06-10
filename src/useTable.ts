@@ -34,7 +34,8 @@ export interface ColumnResizeProps {
 }
 
 const isTouchStartEvent = (e: React.MouseEvent | React.TouchEvent | TouchEvent | MouseEvent) => (e as React.TouchEvent).type.startsWith('touch')
-const getClientX = (e: React.MouseEvent | React.TouchEvent | TouchEvent | MouseEvent) => (isTouchStartEvent(e) ? Math.round((e as React.TouchEvent).touches[0].clientX ?? 0) : (e as React.MouseEvent).clientX)
+const getClientX = (e: React.MouseEvent | React.TouchEvent | TouchEvent | MouseEvent) =>
+    isTouchStartEvent(e) ? Math.round((e as React.TouchEvent).touches[0].clientX ?? 0) : (e as React.MouseEvent).clientX
 
 export function useTable({columns}: useTableProps): useTableReturn {
     const [deltaOffset, setDeltaOffset] = useState(0)
@@ -122,7 +123,12 @@ export function useTable({columns}: useTableProps): useTableReturn {
     }, [])
 
     const columnSum = useMemo(() => columnStore.reduce((acc, column) => acc + columnSizeRef[column.key], 0), [columnStore, columnSizeRef])
-    const columnReturn = columnStore.map(column => ({...column, width: columnSizeRef[column.key], widthPercent: (columnSizeRef[column.key] / columnSum) * 100, isResizing: resizeInfo.current.column === column.key}))
+    const columnReturn = columnStore.map(column => ({
+        ...column,
+        width: columnSizeRef[column.key],
+        widthPercent: (columnSizeRef[column.key] / columnSum) * 100,
+        isResizing: resizeInfo.current.column === column.key,
+    }))
 
     return {
         columns: columnReturn,
