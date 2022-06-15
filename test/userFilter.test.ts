@@ -1,7 +1,8 @@
 import {renderHook} from '@testing-library/react'
 
 import {useFilter} from '../src'
-import {Operator, QueryGroup} from '../src/queryGroup'
+import {Operator} from '../src'
+import {QueryGroup} from '../src/queryGroup'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dataList = require('../example/dataList.json')
