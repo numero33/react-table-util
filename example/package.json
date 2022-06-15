@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "license": "MIT",
     "scripts": {
-        "start": "parcel serve --no-cache --log-level verbose index.html ../dist/main.js",
+        "start": "parcel serve --no-cache --log-level verbose *.html ../dist/index.js",
         "build": "parcel build index.html"
     },
     "dependencies": {
