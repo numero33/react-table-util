@@ -19,6 +19,7 @@ interface sortedBy {
 }
 interface sortByProps {
     direction: sortDirection
+    key?: string
 }
 
 interface useSortReturn<T> {
@@ -48,20 +49,10 @@ export function useSort<T>(props: useSortProps<T>): useSortReturn<T> {
         else setSortedBy(x => ({[key]: {direction: direction ?? toggleSortDirection((x ?? {})[key])}}))
     }
 
-    const sortedArray = useMemo(() => {
-        let sortedFlatArray = flatArray
-        if (sortedBy !== undefined) {
-            sortedFlatArray = Object.keys(sortedBy).flatMap(k =>
-                sortedFlatArray.sort((a, b): number => {
-                    ;[a, b] = [formatRowFlat(a), formatRowFlat(b)]
-                    if (sortedBy[k].direction > 1) [a, b] = [b, a]
-                    return defaultCompare(a[k] ?? '', b[k] ?? '')
-                }),
-            )
-            return sortedFlatArray.flatMap<T>(x => unflatten(x))
-        }
-        return undefined
-    }, [flatArray, sortedBy, formatRowFlat])
+    const sortedArray = useMemo(
+        () => sortGroup(flatArray, sortedBy ? Object.keys(sortedBy).map(x => ({...sortedBy[x], key: x})) : [], formatRowFlat).flatMap<T>(x => unflatten(x)),
+        [flatArray, sortedBy, formatRowFlat],
+    )
 
     return {
         data: sortedArray ?? data,
@@ -79,4 +70,36 @@ const toggleSortDirection = (prevState: sortByProps | undefined) =>
 
 const defaultCompare = (a: FlatRowValue, b: FlatRowValue): number => {
     return a === b ? 0 : a > b ? 1 : -1
+}
+
+const sortGroup = (group: FlatRow[], sortedBy: sortByProps[], formatRowFlat: (row: FlatRow) => FlatRow): FlatRow[] => {
+    // nothing todo
+    if (group.length <= 1 || sortedBy.length === 0) return group
+
+    sortedBy = [...sortedBy]
+
+    const sortBy = sortedBy.shift()
+    const key = sortBy?.key
+    if (!key) return group
+
+    group = group.sort((a, b): number => {
+        ;[a, b] = [formatRowFlat(a), formatRowFlat(b)]
+        if (sortBy.direction > 1) [a, b] = [b, a]
+        return defaultCompare(a[key] ?? '', b[key] ?? '')
+    })
+
+    // nothing to sort again
+    if (sortedBy.length === 0) return group
+
+    type GroupBy = {
+        [key: string]: FlatRow[]
+    }
+
+    return Object.values(
+        group.reduce<GroupBy>((prev, cur) => {
+            prev[cur[key]] = prev?.[cur[key]] ?? ([] as FlatRow[])
+            prev[cur[key]].push(cur)
+            return prev
+        }, {}),
+    ).flatMap(x => sortGroup(x, sortedBy, formatRowFlat))
 }
