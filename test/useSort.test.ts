@@ -43,82 +43,144 @@ test('auto toggle sorting', async () => {
     expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[963])
 })
 
-test('simple sorting', () => {
-    const {result} = renderHook(() =>
-        useSort({
-            data: dataList,
-            initalSorting: {'person.firstName': {direction: sortDirection.ascending}},
-        }),
-    )
-    expect(result.current.data[0]).toStrictEqual(dataList[963])
-    expect(result.current.data[0]).not.toStrictEqual(dataList[0])
-    expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[702])
-    expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
-    expect(result.current.data.length).toBe(dataList.length)
-    expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.ascending)
+describe('simple sorting', () => {
+    test('onSortBy', () => {
+        const {result} = renderHook(() =>
+            useSort({
+                data: dataList,
+                initalSorting: {'person.firstName': {direction: sortDirection.ascending}},
+            }),
+        )
+        expect(result.current.data[0]).toStrictEqual(dataList[963])
+        expect(result.current.data[0]).not.toStrictEqual(dataList[0])
+        expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[702])
+        expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
+        expect(result.current.data.length).toBe(dataList.length)
+        expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.ascending)
 
-    act(() => {
-        result.current.onSortBy('person.firstName', sortDirection.none)
+        act(() => {
+            result.current.onSortBy('person.firstName', sortDirection.none)
+        })
+
+        expect(result.current.data[0]).toStrictEqual(dataList[0])
+        expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[dataList.length - 1])
+        expect(result.current.data[0]).not.toStrictEqual(dataList[1])
+        expect(result.current.data.length).toBe(dataList.length)
+        expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.none)
+
+        act(() => {
+            result.current.onSortBy('person.firstName', sortDirection.descending)
+        })
+
+        expect(result.current.data[0]).toStrictEqual(dataList[702])
+        expect(result.current.data[0]).not.toStrictEqual(dataList[0])
+        expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[963])
+        expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
+        expect(result.current.data.length).toBe(dataList.length)
+        expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.descending)
+
+        act(() => {
+            result.current.onSortBy('person.firstName')
+        })
+
+        expect(result.current.data[0]).toStrictEqual(dataList[963])
+        expect(result.current.data[0]).not.toStrictEqual(dataList[0])
+        expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[702])
+        expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
+        expect(result.current.data.length).toBe(dataList.length)
+        expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.ascending)
+
+        act(() => {
+            result.current.onSortBy('person.firstName')
+        })
+
+        expect(result.current.data[0]).toStrictEqual(dataList[702])
+        expect(result.current.data[0]).not.toStrictEqual(dataList[0])
+        expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[963])
+        expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
+        expect(result.current.data.length).toBe(dataList.length)
+        expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.descending)
     })
 
-    expect(result.current.data[0]).toStrictEqual(dataList[0])
-    expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[dataList.length - 1])
-    expect(result.current.data[0]).not.toStrictEqual(dataList[1])
-    expect(result.current.data.length).toBe(dataList.length)
-    expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.none)
+    test('missing field', () => {
+        const extraRow = {person: {lastName: 'missingFirstName'}, age: 17, visits: 27, progress: 37, status: 'complicated'}
+        const updatedDataList = [...dataList.slice(0, 99), extraRow, ...dataList.slice(100)]
 
-    act(() => {
-        result.current.onSortBy('person.firstName', sortDirection.descending)
+        const {result} = renderHook(() =>
+            useSort({
+                data: updatedDataList,
+                initalSorting: {'person.firstName': {direction: sortDirection.ascending}},
+            }),
+        )
+
+        expect(result.current.data[0]).toStrictEqual(extraRow)
+        expect(result.current.data[0]).not.toStrictEqual(dataList[0])
+        expect(result.current.data[1]).toStrictEqual(dataList[963])
+        expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[702])
+        expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
+        expect(result.current.data.length).toBe(dataList.length)
+        expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.ascending)
     })
-
-    expect(result.current.data[0]).toStrictEqual(dataList[702])
-    expect(result.current.data[0]).not.toStrictEqual(dataList[0])
-    expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[963])
-    expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
-    expect(result.current.data.length).toBe(dataList.length)
-    expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.descending)
-
-    act(() => {
-        result.current.onSortBy('person.firstName')
-    })
-
-    expect(result.current.data[0]).toStrictEqual(dataList[963])
-    expect(result.current.data[0]).not.toStrictEqual(dataList[0])
-    expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[702])
-    expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
-    expect(result.current.data.length).toBe(dataList.length)
-    expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.ascending)
-
-    act(() => {
-        result.current.onSortBy('person.firstName')
-    })
-
-    expect(result.current.data[0]).toStrictEqual(dataList[702])
-    expect(result.current.data[0]).not.toStrictEqual(dataList[0])
-    expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[963])
-    expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
-    expect(result.current.data.length).toBe(dataList.length)
-    expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.descending)
 })
 
-test('simple sorting', () => {
-    const extraRow = {person: {lastName: 'missingFirstName'}, age: 17, visits: 27, progress: 37, status: 'complicated'}
-    const updatedDataList = [...dataList.slice(0, 99), extraRow, ...dataList.slice(100)]
+describe.only('multiple sort', () => {
+    test('init sorting', () => {
+        const data = [
+            {
+                age: 1,
+                visits: 0,
+            },
+            {
+                age: 1,
+                visits: 15,
+            },
+            {
+                age: 1,
+                visits: 30,
+            },
+            {
+                age: 1,
+                visits: 99,
+                progress: -4,
+            },
+            {
+                age: 1,
+                visits: 99,
+                progress: 1,
+            },
 
-    const {result} = renderHook(() =>
-        useSort({
-            data: updatedDataList,
-            initalSorting: {'person.firstName': {direction: sortDirection.ascending}},
-        }),
-    )
+            {
+                age: 5,
+                visits: 1,
+            },
+            {
+                age: 99,
+                visits: 1,
+            },
+            {
+                age: 99,
+                visits: 50,
+            },
+            {
+                age: 99,
+                visits: 100,
+            },
+        ]
 
-    expect(result.current.data[0]).toStrictEqual(extraRow)
-    expect(result.current.data[0]).not.toStrictEqual(dataList[0])
-    expect(result.current.data[1]).toStrictEqual(dataList[963])
-    expect(result.current.data[result.current.data.length - 1]).toStrictEqual(dataList[702])
-    expect(result.current.data[result.current.data.length - 1]).not.toStrictEqual(dataList[dataList.length - 1])
-    expect(result.current.data.length).toBe(dataList.length)
-    expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.ascending)
+        const {result} = renderHook(() =>
+            useSort({
+                data: [...data].sort(() => Math.random() - 0.5),
+                initalSorting: {
+                    age: {direction: sortDirection.ascending},
+                    visits: {direction: sortDirection.ascending},
+                    progress: {direction: sortDirection.ascending},
+                },
+            }),
+        )
+
+        expect(result.current.data).toStrictEqual(data)
+        // expect(isSortedBy(result.current.sortedBy, 'person.firstName')).toBe(sortDirection.ascending)
+    })
 })
 
 test('sorting columnFormatter existing column', () => {
