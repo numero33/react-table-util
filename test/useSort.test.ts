@@ -123,7 +123,7 @@ describe('simple sorting', () => {
     })
 })
 
-describe.only('multiple sort', () => {
+describe('multiple sort', () => {
     test('init sorting', () => {
         const data = [
             {
