@@ -2671,12 +2671,12 @@ jest-regex-util@^28.0.2:
   integrity sha512-4s0IgyNIy0y9FK+cjoVYoxamT7Zeo7MhzqRGx7YDYmaQn1wucY9rotiGkBzzcMXTtjrCAP/f7f+E0F7+fxPNdw==
 
 jest-resolve-dependencies@^28.1.1:
-  version "28.1.1"
-  resolved "https://registry.yarnpkg.com/jest-resolve-dependencies/-/jest-resolve-dependencies-28.1.1.tgz#3dffaaa56f4b41bc6b61053899d1756401763a27"
-  integrity sha512-p8Y150xYJth4EXhOuB8FzmS9r8IGLEioiaetgdNGb9VHka4fl0zqWlVe4v7mSkYOuEUg2uB61iE+zySDgrOmgQ==
+  version "28.1.3"
+  resolved "https://registry.yarnpkg.com/jest-resolve-dependencies/-/jest-resolve-dependencies-28.1.3.tgz#8c65d7583460df7275c6ea2791901fa975c1fe66"
+  integrity sha512-qa0QO2Q0XzQoNPouMbCc7Bvtsem8eQgVPNkwn9LnS+R2n8DaVDPL/U1gngC0LTl1RYXJU0uJa2BMC2DbTfFrHA==
   dependencies:
     jest-regex-util "^28.0.2"
-    jest-snapshot "^28.1.1"
+    jest-snapshot "^28.1.3"
 
 jest-resolve@^28.1.1, jest-resolve@^28.1.3:
   version "28.1.3"
@@ -2748,36 +2748,7 @@ jest-runtime@^28.1.1, jest-runtime@^28.1.3:
     slash "^3.0.0"
     strip-bom "^4.0.0"
 
-jest-snapshot@^28.1.1:
-  version "28.1.1"
-  resolved "https://registry.yarnpkg.com/jest-snapshot/-/jest-snapshot-28.1.1.tgz#ab825c16c8d8b5e883bd57eee6ca8748c42ab848"
-  integrity sha512-1KjqHJ98adRcbIdMizjF5DipwZFbvxym/kFO4g4fVZCZRxH/dqV8TiBFCa6rqic3p0karsy8RWS1y4E07b7P0A==
-  dependencies:
-    "@babel/core" "^7.11.6"
-    "@babel/generator" "^7.7.2"
-    "@babel/plugin-syntax-typescript" "^7.7.2"
-    "@babel/traverse" "^7.7.2"
-    "@babel/types" "^7.3.3"
-    "@jest/expect-utils" "^28.1.1"
-    "@jest/transform" "^28.1.1"
-    "@jest/types" "^28.1.1"
-    "@types/babel__traverse" "^7.0.6"
-    "@types/prettier" "^2.1.5"
-    babel-preset-current-node-syntax "^1.0.0"
-    chalk "^4.0.0"
-    expect "^28.1.1"
-    graceful-fs "^4.2.9"
-    jest-diff "^28.1.1"
-    jest-get-type "^28.0.2"
-    jest-haste-map "^28.1.1"
-    jest-matcher-utils "^28.1.1"
-    jest-message-util "^28.1.1"
-    jest-util "^28.1.1"
-    natural-compare "^1.4.0"
-    pretty-format "^28.1.1"
-    semver "^7.3.5"
-
-jest-snapshot@^28.1.3:
+jest-snapshot@^28.1.1, jest-snapshot@^28.1.3:
   version "28.1.3"
   resolved "https://registry.yarnpkg.com/jest-snapshot/-/jest-snapshot-28.1.3.tgz#17467b3ab8ddb81e2f605db05583d69388fc0668"
   integrity sha512-4lzMgtiNlc3DU/8lZfmqxN3AYD6GGLbl+72rdBpXvcV+whX7mDrREzkPdp2RnmfIiWBg1YbuFSkXduF2JcafJg==
