@@ -31,7 +31,7 @@ export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
 
         const subQuerys: QueryGroup[] = []
         let newQuery: string = '(' + trimQuery + ')'
-        while (newQuery.includes('(')) {
+        while (newQuery.match(reBrace)) {
             const matches = newQuery.matchAll(reBrace)
 
             let result = matches.next()
