@@ -40,12 +40,12 @@ export function useSort<T>(props: useSortProps<T>): useSortReturn<T> {
         if (c.length === 0) return {}
         return c.reduce((sum, val) => ({...sum, [val]: columnFormatter[val]}), {})
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [...Object.keys(columnFormatter ?? {}), sortedBy])
+    }, [[...Object.keys(columnFormatter ?? {})], sortedBy])
 
     const formatRowFlat = useCallback(
         (row: FlatRow): FlatRow => rowFormatter(row, neededColumnFormatters) as FlatRow,
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [...Object.keys(neededColumnFormatters ?? {})],
+        [[...Object.keys(neededColumnFormatters ?? {})]],
     )
 
     const onSortBy = (key: string, direction?: sortDirection): void => {
