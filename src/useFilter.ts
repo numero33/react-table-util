@@ -23,7 +23,7 @@ export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
     const {data, query, columnFormatter} = props
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const formatRowFlat = useCallback((row: FlatRowFilter): FlatRowFilter => rowFormatter(row, columnFormatter), [...Object.keys(columnFormatter ?? {})])
+    const formatRowFlat = useCallback((row: FlatRowFilter): FlatRowFilter => rowFormatter(row, columnFormatter), [[...Object.keys(columnFormatter ?? {})]])
 
     const queryFilter: QueryGroup | null = useMemo(() => {
         const trimQuery = query.trim()
