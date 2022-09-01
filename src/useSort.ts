@@ -27,8 +27,8 @@ interface useSortReturn<T> {
     sortedBy?: sortedBy
 }
 
-export function useSort<T>(props: useSortProps<T>): useSortReturn<T> {
-    const {data, initalSorting, columnFormatter} = props
+export function useSort<T>({data, initalSorting, columnFormatter: initalColumnFormatter}: useSortProps<T>): useSortReturn<T> {
+    const [columnFormatter] = useState(initalColumnFormatter)
 
     const [sortedBy, setSortedBy] = useState<sortedBy | undefined>(initalSorting)
 
@@ -39,19 +39,14 @@ export function useSort<T>(props: useSortProps<T>): useSortReturn<T> {
         const c = Object.keys(columnFormatter).filter(x => Object.keys(sortedBy).includes(x))
         if (c.length === 0) return {}
         return c.reduce((sum, val) => ({...sum, [val]: columnFormatter[val]}), {})
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [[...Object.keys(columnFormatter ?? {})], sortedBy])
+    }, [columnFormatter, sortedBy])
 
-    const formatRowFlat = useCallback(
-        (row: FlatRow): FlatRow => rowFormatter(row, neededColumnFormatters) as FlatRow,
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [[...Object.keys(neededColumnFormatters ?? {})]],
-    )
-
-    const onSortBy = (key: string, direction?: sortDirection): void => {
+    const onSortBy = useCallback((key: string, direction?: sortDirection): void => {
         if (direction === sortDirection.none) setSortedBy(undefined)
         else setSortedBy(x => ({[key]: {direction: direction ?? toggleSortDirection((x ?? {})[key])}}))
-    }
+    }, [])
+
+    const formatRowFlat = useCallback((row: FlatRow): FlatRow => rowFormatter(row, neededColumnFormatters) as FlatRow, [neededColumnFormatters])
 
     const sortedArray = useMemo(
         () =>
