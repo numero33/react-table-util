@@ -35,6 +35,23 @@
                 opacity: 1;
             }
 
+            .reorder {
+                position: absolute;
+                right: 10px;
+                top: 0;
+                height: 100%;
+                width: 10px;
+                background: rgba(0, 0, 0, 0.5);
+                cursor: move;
+                user-select: none;
+                touch-action: none;
+            }
+
+            .reorder.isReordering {
+                background: red;
+                opacity: 1;
+            }
+
             @media (hover: hover) {
                 .resizer {
                     opacity: 0;

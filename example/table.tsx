@@ -25,8 +25,12 @@ function Example(): JSX.Element {
     }
 
     const {data: filterdList} = useFilter({data: list, query, columnFormatter})
-    const {data: sortedList, onSortBy, sortedBy} = useSort({data: filterdList, columnFormatter})
-    const {columns, getColumn, deltaOffset} = useTable({columns: {'person.firstName': {key: 'firstName'}, lastNameNewColumn: {}, age: {}, visits: {}, progress: {}, status: {}}})
+    const {data: sortedList} = useSort({data: filterdList, columnFormatter})
+    const {columns, getColumn, deltaOffset} = useTable({
+        columns: {'person.firstName': {key: 'firstName'}, lastNameNewColumn: {}, age: {}, visits: {}, progress: {}, status: {}},
+    })
+
+    // console.debug({columns})
 
     const columnResizeMode = 'onEnd' ?? 'onChange'
 
@@ -48,6 +52,7 @@ function Example(): JSX.Element {
                 <div className="row header">
                     {columns.map(c => (
                         <div
+                            key={c.key}
                             ref={r => r && c.setRef(r)}
                             style={{
                                 // flexBasis: `${c.width}rem`,
@@ -55,7 +60,7 @@ function Example(): JSX.Element {
                                 width: `${percentage ? `${c.widthPercent}%` : `${c.width}px`}`,
                             }}
                         >
-                            {c.width}
+                            {c.key}
                             <div
                                 className={`resizer ${c.isResizing ? 'isResizing' : ''}`}
                                 onMouseDown={c?.getResizeHandler}
@@ -64,59 +69,29 @@ function Example(): JSX.Element {
                                     transform: columnResizeMode === 'onEnd' && c.isResizing ? `translateX(${deltaOffset}px)` : '',
                                 }}
                             />
+                            <div
+                                className={`reorder ${c.isReordering ? 'isReordering' : ''}`}
+                                onMouseDown={c?.getReorderHandler}
+                                onTouchStart={c?.getReorderHandler}
+                                style={{
+                                    transform: c.isReordering ? `translateX(${deltaOffset}px)` : '',
+                                }}
+                            />
                         </div>
                     ))}
                 </div>
                 {sortedList.map((x, i) => (
                     <div key={i} className="row">
-                        <div
-                            style={{
-                                width: `${percentage ? `${getColumn('person.firstName')?.widthPercent}%` : `${getColumn('person.firstName')?.width}px`}`,
-                                padding: 0,
-                            }}
-                        >
-                            {x.person.firstName}
-                        </div>
-                        <div
-                            style={{
-                                width: `${percentage ? `${getColumn('lastNameNewColumn')?.widthPercent}%` : `${getColumn('lastNameNewColumn')?.width}px`}`,
-                                padding: 0,
-                            }}
-                        >
-                            {x.person.lastName}
-                        </div>
-                        <div
-                            style={{
-                                width: `${percentage ? `${getColumn('age')?.widthPercent}%` : `${getColumn('age')?.width}px`}`,
-                                padding: 0,
-                            }}
-                        >
-                            {x.age}
-                        </div>
-                        <div
-                            style={{
-                                width: `${percentage ? `${getColumn('visits')?.widthPercent}%` : `${getColumn('visits')?.width}px`}`,
-                                padding: 0,
-                            }}
-                        >
-                            {x.visits}
-                        </div>
-                        <div
-                            style={{
-                                width: `${percentage ? `${getColumn('progress')?.widthPercent}%` : `${getColumn('progress')?.width}px`}`,
-                                padding: 0,
-                            }}
-                        >
-                            {x.progress}
-                        </div>
-                        <div
-                            style={{
-                                width: `${percentage ? `${getColumn('status')?.widthPercent}%` : `${getColumn('status')?.width}px`}`,
-                                padding: 0,
-                            }}
-                        >
-                            {x.status}
-                        </div>
+                        {columns.map(c => (
+                            <div
+                                style={{
+                                    width: `${percentage ? `${getColumn(c.key)?.widthPercent}%` : `${getColumn(c.key)?.width}px`}`,
+                                    padding: 0,
+                                }}
+                            >
+                                {x?.[c.key] ?? `-`}
+                            </div>
+                        ))}
                     </div>
                 ))}
             </div>
