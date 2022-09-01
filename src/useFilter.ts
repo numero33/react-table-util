@@ -1,4 +1,4 @@
-import {useMemo, useCallback} from 'react'
+import {useMemo, useCallback, useState} from 'react'
 import {FilterConjunctive, Operator, QueryGroup} from './queryGroup'
 import flat from 'flat'
 import rowFormatter, {filterColumnFormatters, FlatRowFilter} from './columnFormatter'
@@ -19,11 +19,8 @@ const reReplaceBrace = /^\s*\(+\s*|\s*\)+\s*$/g
 const reReplaceApostrophe = /^\s*\'*|\'*\s*$/g
 const reSplit = /\s+(and|or)\s+/gim
 
-export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
-    const {data, query, columnFormatter} = props
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const formatRowFlat = useCallback((row: FlatRowFilter): FlatRowFilter => rowFormatter(row, columnFormatter), [[...Object.keys(columnFormatter ?? {})]])
+export function useFilter<T>({data, query, columnFormatter: initalColumnFormatter}: useFilterProps<T>): useFilterReturn<T> {
+    const [columnFormatter] = useState(initalColumnFormatter)
 
     const queryFilter: QueryGroup | null = useMemo(() => {
         const trimQuery = query.trim()
@@ -59,6 +56,8 @@ export function useFilter<T>(props: useFilterProps<T>): useFilterReturn<T> {
         if (subQuerys.length === 0) return null
         return subQuerys[subQuerys.length - 1]
     }, [query])
+
+    const formatRowFlat = useCallback((row: FlatRowFilter): FlatRowFilter => rowFormatter(row, columnFormatter), [columnFormatter])
 
     const flatArray: FlatRowFilter[] = useMemo(
         () => data.flatMap(x => formatRowFlat(flat<T, FlatRowFilter>(x)) as FlatRowFilter | readonly FlatRowFilter[]),
