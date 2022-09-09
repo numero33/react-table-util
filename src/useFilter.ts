@@ -59,16 +59,15 @@ export function useFilter<T>({data, query, columnFormatter: initalColumnFormatte
 
     const formatRowFlat = useCallback((row: FlatRowFilter): FlatRowFilter => rowFormatter(row, columnFormatter), [columnFormatter])
 
-    const flatArray: FlatRowFilter[] = useMemo(
-        () => data.flatMap(x => formatRowFlat(flat<T, FlatRowFilter>(x)) as FlatRowFilter | readonly FlatRowFilter[]),
-        [data, formatRowFlat],
-    )
+    const formattedArray: {flatArray: FlatRowFilter[]; data: T[]} = useMemo(() => {
+        const keys = [...Array(data.length).keys()] as number[]
+        return {flatArray: keys.map(x => formatRowFlat(flat<T, FlatRowFilter>(data[x])) as FlatRowFilter), data: keys.map(x => data[x])}
+    }, [data, formatRowFlat])
 
     const newData: T[] | undefined = useMemo(() => {
-        if (queryFilter !== null) return [...Array(flatArray.length).keys()].filter(x => queryFilter.filter(flatArray[x])).map(x => data[x])
-        return undefined
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [flatArray, queryFilter])
+        if (queryFilter === null) return undefined
+        return [...Array(formattedArray.flatArray.length).keys()].filter(x => queryFilter.filter(formattedArray.flatArray[x])).map(x => formattedArray.data[x])
+    }, [formattedArray, queryFilter])
 
     return {
         data: newData ?? data,
