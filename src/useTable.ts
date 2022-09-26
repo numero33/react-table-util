@@ -122,7 +122,7 @@ export function useTable({columns}: useTableProps): useTableReturn {
         setColumnStore(returnColumns)
         setColumnSizeRef(returnColumnSize)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [columns, resizeHandler])
+    }, [JSON.stringify(columns), resizeHandler])
 
     const columnSum = useMemo(() => columnStore.reduce((acc, column) => acc + columnSizeRef[column.key], 0), [columnStore, columnSizeRef])
     const columnReturn = useMemo(
