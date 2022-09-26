@@ -16,6 +16,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: 14
+                  cache: 'yarn'
             - run: |
                   yarn install
                   yarn run test:coverage

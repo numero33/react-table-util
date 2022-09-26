@@ -13,6 +13,7 @@ export interface useTableReturn {
     columns: ColumnReturn[]
     getColumn: (column: string) => ColumnReturn | undefined
     deltaOffset: number
+    totalWidth: number
 }
 
 export interface ColumnReturn {
@@ -23,7 +24,7 @@ export interface ColumnReturn {
     setRef: (ref: HTMLElement) => void
 
     getResizeHandler?: (event: React.MouseEvent | React.TouchEvent) => void
-    isResizing: boolean
+    isResizing: () => boolean
 }
 
 export interface ColumnResizeProps {
@@ -44,59 +45,60 @@ export function useTable({columns}: useTableProps): useTableReturn {
     const [columnSizeRef, setColumnSizeRef] = useState({} as {[column: string]: number})
     const [columnStore, setColumnStore] = useState([] as ColumnReturn[])
 
-    const resizeHandler = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-        if (isTouchStartEvent(e) && (e as React.TouchEvent).touches && (e as React.TouchEvent).touches.length > 1) return
+    const updateOffset = (clientXPos?: number) => {
+        if (typeof clientXPos !== 'number' || isNaN(clientXPos)) return
 
-        const clientX = getClientX(e)
-        resizeInfo.current.startOffset = clientX
+        const deltaOffset = clientXPos - resizeInfo.current.startOffset
 
-        const updateOffset = (clientXPos?: number) => {
-            if (typeof clientXPos !== 'number' || isNaN(clientXPos)) return
+        setDeltaOffset(deltaOffset)
+        resizeInfo.current.deltaOffset = deltaOffset
+    }
 
-            const deltaOffset = clientXPos - resizeInfo.current.startOffset
+    const onMove = useCallback((e: MouseEvent | TouchEvent) => updateOffset(getClientX(e)), [])
+    const onUp = useCallback(() => {
+        document.removeEventListener('mousemove', onMove)
+        document.removeEventListener('mouseup', onUp)
+        document.removeEventListener('touchmove', onMove)
+        document.removeEventListener('touchend', onUp)
 
-            setDeltaOffset(deltaOffset)
-            resizeInfo.current.deltaOffset = deltaOffset
+        const deltaOffset = resizeInfo.current.deltaOffset ?? 0
+        if (deltaOffset !== 0) {
+            const currentColumnKey = resizeInfo.current.column
+            const startWidth = resizeInfo.current.startWidth
+
+            setColumnSizeRef(columnSizeRef => {
+                const currentWidth = columnSizeRef[currentColumnKey]
+                if (startWidth !== currentWidth) {
+                    const sumSteps = Object.keys(columnSizeRef).reduce((sum, key) => sum + columnSizeRef[key], 0)
+
+                    const fullWidthBefore = (startWidth / currentWidth) * sumSteps
+
+                    const deltaPercentage2 = (1 / fullWidthBefore) * Math.min(startWidth + deltaOffset, fullWidthBefore)
+                    if (deltaPercentage2 >= 1) return columnSizeRef
+                    return {...columnSizeRef, [currentColumnKey]: Math.round(((sumSteps - currentWidth) / (1 - deltaPercentage2)) * deltaPercentage2)}
+                }
+                return {...columnSizeRef, [currentColumnKey]: startWidth + deltaOffset}
+            })
         }
 
-        const onMove = (e: MouseEvent | TouchEvent) => updateOffset(getClientX(e))
+        resizeInfo.current = {} as ColumnResizeProps
+        setDeltaOffset(0)
+    }, [onMove])
 
-        const onUp = () => {
-            document.removeEventListener('mousemove', onMove)
-            document.removeEventListener('mouseup', onUp)
-            document.removeEventListener('touchmove', onMove)
-            document.removeEventListener('touchend', onUp)
+    const resizeHandler = useCallback(
+        (e: React.MouseEvent | React.TouchEvent) => {
+            if (isTouchStartEvent(e) && (e as React.TouchEvent).touches && (e as React.TouchEvent).touches.length > 1) return
 
-            const deltaOffset = resizeInfo.current.deltaOffset ?? 0
-            if (deltaOffset !== 0) {
-                const currentColumnKey = resizeInfo.current.column
-                const startWidth = resizeInfo.current.startWidth
+            const clientX = getClientX(e)
+            resizeInfo.current.startOffset = clientX
 
-                setColumnSizeRef(columnSizeRef => {
-                    const currentWidth = columnSizeRef[currentColumnKey]
-                    if (startWidth !== currentWidth) {
-                        const sumSteps = Object.keys(columnSizeRef).reduce((sum, key) => sum + columnSizeRef[key], 0)
-
-                        const fullWidthBefore = (startWidth / currentWidth) * sumSteps
-
-                        const deltaPercentage2 = (1 / fullWidthBefore) * Math.min(startWidth + deltaOffset, fullWidthBefore)
-                        if (deltaPercentage2 >= 1) return columnSizeRef
-                        return {...columnSizeRef, [currentColumnKey]: Math.round(((sumSteps - currentWidth) / (1 - deltaPercentage2)) * deltaPercentage2)}
-                    }
-                    return {...columnSizeRef, [currentColumnKey]: startWidth + deltaOffset}
-                })
-            }
-
-            resizeInfo.current = {} as ColumnResizeProps
-            setDeltaOffset(0)
-        }
-
-        document.addEventListener('mouseup', onUp)
-        document.addEventListener('mousemove', onMove)
-        document.addEventListener('touchend', onUp)
-        document.addEventListener('touchmove', onMove)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+            document.addEventListener('mouseup', onUp)
+            document.addEventListener('mousemove', onMove)
+            document.addEventListener('touchend', onUp)
+            document.addEventListener('touchmove', onMove)
+        },
+        [onMove, onUp],
+    )
 
     useEffect(() => {
         const returnColumns: ColumnReturn[] = []
@@ -114,25 +116,31 @@ export function useTable({columns}: useTableProps): useTableReturn {
                     resizeHandler(event)
                 },
                 setRef: (ref: HTMLElement) => columnRef.set(key, ref),
-                isResizing: false,
+                isResizing: () => resizeInfo.current.column === key,
             })
         })
         setColumnStore(returnColumns)
         setColumnSizeRef(returnColumnSize)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [JSON.stringify(columns), resizeHandler])
 
     const columnSum = useMemo(() => columnStore.reduce((acc, column) => acc + columnSizeRef[column.key], 0), [columnStore, columnSizeRef])
-    const columnReturn = columnStore.map(column => ({
-        ...column,
-        width: columnSizeRef[column.key],
-        widthPercent: (columnSizeRef[column.key] / columnSum) * 100,
-        isResizing: resizeInfo.current.column === column.key,
-    }))
+    const columnReturn = useMemo(
+        () =>
+            columnStore.map(column => ({
+                ...column,
+                width: columnSizeRef[column.key],
+                widthPercent: (columnSizeRef[column.key] / columnSum) * 100,
+            })),
+        [columnSizeRef, columnStore, columnSum],
+    )
+
+    const getColumn = useCallback((column: string) => columnReturn.find(c => c.key === column), [columnReturn])
 
     return {
         columns: columnReturn,
-        getColumn: (column: string) => columnReturn.find(i => i.key === column),
+        getColumn,
         deltaOffset: deltaOffset,
+        totalWidth: columnSum,
     }
 }
