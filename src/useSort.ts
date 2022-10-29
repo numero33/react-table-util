@@ -2,7 +2,7 @@ import {useState, useMemo, useCallback} from 'react'
 import flat, {unflatten} from 'flat'
 import rowFormatter, {FlatRow, FlatRowValue, sortingColumnFormatters} from './columnFormatter'
 
-interface useSortProps<T> {
+export interface useSortProps<T> {
     data: Array<T>
     initalSorting?: sortedBy
     columnFormatter?: sortingColumnFormatters
@@ -14,14 +14,14 @@ export enum sortDirection {
     descending,
 }
 
-interface sortedBy {
+export interface sortedBy {
     [propName: string]: sortByProps
 }
-interface sortByProps {
+export interface sortByProps {
     direction: sortDirection
 }
 
-interface useSortReturn<T> {
+export interface useSortReturn<T> {
     data: Array<T>
     onSortBy: (key: string, direction?: sortDirection) => void
     sortedBy?: sortedBy
