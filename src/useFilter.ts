@@ -3,13 +3,13 @@ import {FilterConjunctive, Operator, QueryGroup} from './queryGroup'
 import flat from 'flat'
 import rowFormatter, {filterColumnFormatters, FlatRowFilter} from './columnFormatter'
 
-interface useFilterProps<T> {
+export interface useFilterProps<T> {
     data: T[]
     query: string
     columnFormatter?: filterColumnFormatters
 }
 
-interface useFilterReturn<T> {
+export interface useFilterReturn<T> {
     data: T[]
 }
 
