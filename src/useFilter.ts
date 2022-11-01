@@ -1,12 +1,13 @@
 import {useMemo, useCallback, useState} from 'react'
 import {FilterConjunctive, Operator, QueryGroup} from './queryGroup'
 import flat from 'flat'
-import rowFormatter, {filterColumnFormatters, FlatRowFilter} from './columnFormatter'
+import rowFormatter, {filterColumnFormatters, FlatRowFilter, FlatRowValueFilter} from './columnFormatter'
 
 export interface useFilterProps<T> {
     data: T[]
     query: string
     columnFormatter?: filterColumnFormatters
+    queryValueFormatter?: filterColumnFormatters
 }
 
 export interface useFilterReturn<T> {
@@ -19,8 +20,14 @@ const reReplaceBrace = /^\s*\(+\s*|\s*\)+\s*$/g
 const reReplaceApostrophe = /^\s*\'*|\'*\s*$/g
 const reSplit = /\s+(and|or)\s+/gim
 
-export function useFilter<T>({data, query, columnFormatter: initalColumnFormatter}: useFilterProps<T>): useFilterReturn<T> {
+export function useFilter<T>({
+    data,
+    query,
+    columnFormatter: initalColumnFormatter,
+    queryValueFormatter: initalQueryValueFormatter,
+}: useFilterProps<T>): useFilterReturn<T> {
     const [columnFormatter] = useState(initalColumnFormatter)
+    const [queryValueFormatter] = useState(initalQueryValueFormatter)
 
     const queryFilter: QueryGroup | null = useMemo(() => {
         const trimQuery = query.trim()
@@ -42,8 +49,11 @@ export function useFilter<T>({data, query, columnFormatter: initalColumnFormatte
                 for (const c of m.split(reSplit)) {
                     const s = reCondition.exec(c)
                     if (s !== null) {
-                        if (s[1] !== undefined) group.addCompare(s[1], s[2] as Operator, s[3].replace(reReplaceApostrophe, ''))
-                        else if (s[4] !== undefined) group.addGroup(subQuerys[Number(s[4])])
+                        if (s[1] !== undefined) {
+                            let value = s[3].replace(reReplaceApostrophe, '') as FlatRowValueFilter
+                            if (queryValueFormatter !== undefined && s[1] in queryValueFormatter) value = queryValueFormatter[s[1]](value)
+                            group.addCompare(s[1], s[2] as Operator, value)
+                        } else if (s[4] !== undefined) group.addGroup(subQuerys[Number(s[4])])
                     }
                 }
 
@@ -55,7 +65,7 @@ export function useFilter<T>({data, query, columnFormatter: initalColumnFormatte
 
         if (subQuerys.length === 0) return null
         return subQuerys[subQuerys.length - 1]
-    }, [query])
+    }, [query, queryValueFormatter])
 
     const formatRowFlat = useCallback((row: FlatRowFilter): FlatRowFilter => rowFormatter(row, columnFormatter), [columnFormatter])
 
