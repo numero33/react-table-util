@@ -1,5 +1,5 @@
 import {useState, useMemo, useCallback} from 'react'
-import flat, {unflatten} from 'flat'
+import {flatten, unflatten} from 'flat'
 import rowFormatter, {FlatRow, FlatRowValue, sortingColumnFormatters} from './columnFormatter'
 
 export interface useSortProps<T, CN extends string> {
@@ -32,7 +32,7 @@ export function useSort<T, CN extends string>({data, initalSorting, columnFormat
 
     const [sortedBy, setSortedBy] = useState<sortedBy | undefined>(initalSorting)
 
-    const flatArray: FlatRow[] = useMemo(() => data.flatMap(x => flat(x)), [data])
+    const flatArray: FlatRow[] = useMemo(() => data.flatMap(x => flatten(x)), [data])
 
     const neededColumnFormatters = useMemo<sortingColumnFormatters<CN>>(() => {
         if (columnFormatter === undefined || sortedBy === undefined) return {}

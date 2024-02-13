@@ -1,6 +1,6 @@
 import {useMemo, useCallback, useState} from 'react'
 import {FilterConjunctive, Operator, QueryGroup} from './queryGroup'
-import flat from 'flat'
+import {flatten} from 'flat'
 import rowFormatter, {filterColumnFormatters, FlatRowFilter, FlatRowValueFilter} from './columnFormatter'
 
 export interface useFilterProps<T, CN extends string> {
@@ -74,7 +74,7 @@ export function useFilter<T, CN extends string>({
 
     const formattedArray: {flatArray: FlatRowFilter[]; data: T[]} = useMemo(() => {
         const keys = [...Array(data.length).keys()] as number[]
-        return {flatArray: keys.map(x => formatRowFlat(flat<T, FlatRowFilter>(data[x])) as FlatRowFilter), data: keys.map(x => data[x])}
+        return {flatArray: keys.map(x => formatRowFlat(flatten<T, FlatRowFilter>(data[x])) as FlatRowFilter), data: keys.map(x => data[x])}
     }, [data, formatRowFlat])
 
     const newData: T[] | undefined = useMemo(() => {
