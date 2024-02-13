@@ -2,10 +2,10 @@ import {useState, useMemo, useCallback} from 'react'
 import flat, {unflatten} from 'flat'
 import rowFormatter, {FlatRow, FlatRowValue, sortingColumnFormatters} from './columnFormatter'
 
-export interface useSortProps<T> {
+export interface useSortProps<T, CN extends string> {
     data: Array<T>
     initalSorting?: sortedBy
-    columnFormatter?: sortingColumnFormatters
+    columnFormatter?: sortingColumnFormatters<CN>
 }
 
 export enum sortDirection {
@@ -27,16 +27,16 @@ export interface useSortReturn<T> {
     sortedBy?: sortedBy
 }
 
-export function useSort<T>({data, initalSorting, columnFormatter: initalColumnFormatter}: useSortProps<T>): useSortReturn<T> {
+export function useSort<T, CN extends string>({data, initalSorting, columnFormatter: initalColumnFormatter}: useSortProps<T, CN>): useSortReturn<T> {
     const [columnFormatter] = useState(initalColumnFormatter)
 
     const [sortedBy, setSortedBy] = useState<sortedBy | undefined>(initalSorting)
 
     const flatArray: FlatRow[] = useMemo(() => data.flatMap(x => flat(x)), [data])
 
-    const neededColumnFormatters: sortingColumnFormatters = useMemo(() => {
+    const neededColumnFormatters = useMemo<sortingColumnFormatters<CN>>(() => {
         if (columnFormatter === undefined || sortedBy === undefined) return {}
-        const c = Object.keys(columnFormatter).filter(x => Object.keys(sortedBy).includes(x))
+        const c = (Object.keys(columnFormatter) as CN[]).filter(x => Object.keys(sortedBy).includes(x))
         if (c.length === 0) return {}
         return c.reduce((sum, val) => ({...sum, [val]: columnFormatter[val]}), {})
     }, [columnFormatter, sortedBy])

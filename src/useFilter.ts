@@ -3,11 +3,11 @@ import {FilterConjunctive, Operator, QueryGroup} from './queryGroup'
 import flat from 'flat'
 import rowFormatter, {filterColumnFormatters, FlatRowFilter, FlatRowValueFilter} from './columnFormatter'
 
-export interface useFilterProps<T> {
+export interface useFilterProps<T, CN extends string> {
     data: T[]
     query: string
-    columnFormatter?: filterColumnFormatters
-    queryValueFormatter?: filterColumnFormatters
+    columnFormatter?: filterColumnFormatters<CN>
+    queryValueFormatter?: filterColumnFormatters<CN>
 }
 
 export interface useFilterReturn<T> {
@@ -20,12 +20,12 @@ const reReplaceBrace = /^\s*\(+\s*|\s*\)+\s*$/g
 const reReplaceApostrophe = /^\s*\'*|\'*\s*$/g
 const reSplit = /\s+(and|or)\s+/gim
 
-export function useFilter<T>({
+export function useFilter<T, CN extends string>({
     data,
     query,
     columnFormatter: initalColumnFormatter,
     queryValueFormatter: initalQueryValueFormatter,
-}: useFilterProps<T>): useFilterReturn<T> {
+}: useFilterProps<T, CN>): useFilterReturn<T> {
     const [columnFormatter] = useState(initalColumnFormatter)
     const [queryValueFormatter] = useState(initalQueryValueFormatter)
 
@@ -51,7 +51,10 @@ export function useFilter<T>({
                     if (s !== null) {
                         if (s[1] !== undefined) {
                             let value = s[3].replace(reReplaceApostrophe, '') as FlatRowValueFilter
-                            if (queryValueFormatter !== undefined && s[1] in queryValueFormatter) value = queryValueFormatter[s[1]](value)
+                            if (queryValueFormatter !== undefined && s[1] in queryValueFormatter) {
+                                const f = queryValueFormatter[s[1] as keyof typeof queryValueFormatter]
+                                if (f) value = f(value)
+                            }
                             group.addCompare(s[1], s[2] as Operator, value)
                         } else if (s[4] !== undefined) group.addGroup(subQuerys[Number(s[4])])
                     }
