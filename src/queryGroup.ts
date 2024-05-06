@@ -71,14 +71,30 @@ export class QueryGroup {
                 return c.right.test(String(row[c.left]))
             case Operator.NotEqReg:
                 return !c.right.test(String(row[c.left]))
-            case Operator.Gt:
-                return row[c.left] > c.right
-            case Operator.GtOrEq:
-                return row[c.left] >= c.right
-            case Operator.Lt:
-                return row[c.left] < c.right
-            case Operator.LtOrEq:
-                return row[c.left] <= c.right
+            case Operator.Gt: {
+                const left = row[c.left],
+                    right = c.right
+                if (typeof left !== 'number' || typeof right !== 'number') throw new Error('Gt operator requires a number')
+                return left > right
+            }
+            case Operator.GtOrEq: {
+                const left = row[c.left],
+                    right = c.right
+                if (typeof left !== 'number' || typeof right !== 'number') throw new Error('GtOrEq operator requires a number')
+                return left >= right
+            }
+            case Operator.Lt: {
+                const left = row[c.left],
+                    right = c.right
+                if (typeof left !== 'number' || typeof right !== 'number') throw new Error('Lt operator requires a number')
+                return left < right
+            }
+            case Operator.LtOrEq: {
+                const left = row[c.left],
+                    right = c.right
+                if (typeof left !== 'number' || typeof right !== 'number') throw new Error('LtOrEq operator requires a number')
+                return left <= right
+            }
         }
         return false
     }

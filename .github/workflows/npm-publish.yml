@@ -8,12 +8,25 @@ jobs:
     publish:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - name: 🛎️ Checkout
+              uses: actions/checkout@v3
+
+            - name: 📦 Setup pnpm
+              uses: pnpm/action-setup@v2
+              id: pnpm-install
               with:
-                  node-version: 16
-                  cache: 'yarn'
-            - run: yarn install
+                version: latest
+                run_install: false
+
+            - name: 🐧 Use Node.js v20.x
+              uses: actions/setup-node@v3
+              with:
+                node-version: v20.x
+                cache: "pnpm"
+
+            - name: 🔍 Install dependencies
+              run: pnpm install --reporter=append-only --frozen-lockfile
+
             - uses: JS-DevTools/npm-publish@v1
               with:
                   token: ${{ secrets.NPM_TOKEN }}
