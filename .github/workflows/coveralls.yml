@@ -23,7 +23,7 @@ jobs:
                 run_install: false
 
             - name: 🐧 Use Node.js v20.x
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
                 node-version: v20.x
                 cache: "pnpm"
